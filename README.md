@@ -1,6 +1,6 @@
 # Device-Cloud-Fusion
 
-## Datasets for multimodal task
+## Datasets for Multimodal Task
 
 ### Cross-Modal Federated Human Activity Recognition via Modality-Agnostic and Modality-Specific Representation Learning(AAAI2022)
 
@@ -49,3 +49,14 @@ MS COCO, LN COCO, 使用 zero-shot Frechet Inception Distance(FID) 作为评价�
 #### Multimodal Joint Creation and Comprehension
 
 (omit)
+
+
+## We Are Considering
+
+### Tasks
+
+- 视觉问答（VQA）：给定一张图片和一个关于图片的问题，模型需要生成或选择正确的答案。
+
+- 图像字幕生成（Image Captioning）：模型需要为给定的图像生成自然语言描述。
+
+- 跨模态检索（Cross-Modal Retrieval）：模型需要在文本和图像之间建立相似性，以便能够在文本查询时检索相关的图像或在图像查询时检索相关的文本。
