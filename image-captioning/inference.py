@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
 from config import Config
-from dataset import build_loader
+from dataset import build_loader, parse_caption_file, split_data
 from model import CLIPModel
 from tqdm import tqdm
 from transformers import DistilBertTokenizer
@@ -30,7 +30,7 @@ def get_image_embeddings(valid_image_filenames, valid_captions, model_path):
 def find_matches(model, image_embeddings, query, image_filenames, k=9):
     tokenizer = DistilBertTokenizer.from_pretrained(Config.text_tokenizer)
     encoded_query = tokenizer([query])
-    batch = {key: val.to(Config.device) for key, val in encoded_query.items()}
+    batch = {key: torch.tensor(val).to(Config.device) for key, val in encoded_query.items()}
     text_features = model.text_encoder(batch["input_ids"], batch["attention_mask"])
     text_embeddings = model.text_projection(text_features)
 
@@ -49,3 +49,18 @@ def find_matches(model, image_embeddings, query, image_filenames, k=9):
         ax.axis("off")
 
     plt.savefig("matches.png")
+
+
+if __name__ == "__main__":
+    import time
+    start = time.time()
+    image_filenames, captions = parse_caption_file(Config.caption_path)
+    _, valid_data = split_data(image_filenames, captions, train_size=0.8)
+    model_path = "best_model.pth"
+    model, valid_image_embeddings = get_image_embeddings(*valid_data, model_path)
+
+    find_matches(model, 
+                 valid_image_embeddings,
+                 query="a group of people dancing in a party",
+                image_filenames=valid_data[0],
+                k=9)
