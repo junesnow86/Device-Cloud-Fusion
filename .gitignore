@@ -1,2 +1,3 @@
 **/__pycache__
 data/flickr30k/images/*.jpg
+**/data/*
