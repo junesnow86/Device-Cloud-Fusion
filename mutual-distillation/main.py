@@ -17,7 +17,7 @@ def loss_fn_kd(outputs, teacher_outputs, labels=None, T=20, alpha=0.5, with_labe
         soft_loss = soft_loss * alpha + hard_loss
     return soft_loss
 
-def train(model, data, epochs=20, device='cuda'):
+def train(model, data, epochs=30, device='cuda'):
     model.to(device)
     model.train()
     dataloader = DataLoader(data, batch_size=32, shuffle=True)
@@ -108,22 +108,32 @@ print(">>> Start training party B model...")
 train(party_B_model, party_B_data)
 party_B_acc = test(party_B_model, test_dataset)
 
-print(f'Cloud model accuracy: {cloud_acc:.4f}')
-print(f'Party A model accuracy: {party_A_acc:.4f}')
-print(f'Party B model accuracy: {party_B_acc:.4f}')
-
 # Perform knowledge distillation from parties to the cloud
 print(">>> Start distillation from party A to cloud...")
 distill(party_A_model, cloud_model, party_A_data, loss_fn_kd)
 cloud_acc_kd1 = test(cloud_model, test_dataset)
 
+print(">>> Start fine-tuning cloud model...")
+train(cloud_model, cloud_data, epochs=10)  # fine-tuning
+cloud_acc_finetune1 = test(cloud_model, test_dataset)
+
 print(">>> Start distillation from party B to cloud...")
 distill(party_B_model, cloud_model, party_B_data, loss_fn_kd)
 cloud_acc_kd2 = test(cloud_model, test_dataset)
 
+print(">>> Start fine-tuning cloud model...")
+train(cloud_model, cloud_data, epochs=10)  # fine-tuning
+cloud_acc_finetune2 = test(cloud_model, test_dataset)
+
+print(f'Cloud model accuracy: {cloud_acc:.4f}')
+print(f'Party A model accuracy: {party_A_acc:.4f}')
+print(f'Party B model accuracy: {party_B_acc:.4f}')
 print(f'Cloud model accuracy after distillation from party A: {cloud_acc_kd1:.4f}')
+print(f'Cloud model accuracy after fine-tuning: {cloud_acc_finetune1:.4f}')
 print(f'Cloud model accuracy after distillation from party B: {cloud_acc_kd2:.4f}')
+print(f'Cloud model accuracy after fine-tuning: {cloud_acc_finetune2:.4f}')
 
 # TODO:
-# - Add an embedding layer before the CNN models
-# - Add fine-tuning process after distillation
+# - Split out the last linear layer from the models
+# - Add mutual distillation between the cloud and the parties
+# - Add cloud data during fine-tuning to avoid catastrophic forgetting
