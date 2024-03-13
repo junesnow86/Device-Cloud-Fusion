@@ -8,6 +8,8 @@ from torchvision.datasets import CIFAR10
 from torchvision.models import mobilenet_v3_small, mobilenet_v3_large, resnet152
 from tqdm import tqdm
 
+from models import FeatureExtractor, Classifier
+
 
 def loss_fn_kd(outputs, teacher_outputs, labels=None, T=20, alpha=0.5, with_labels=False):
     soft_loss = nn.KLDivLoss(reduction="batchmean")(nn.functional.log_softmax(outputs/T, dim=1),
@@ -75,18 +77,19 @@ def test(model, data, device='cuda'):
 
     return correct / total
 
-def distill(teacher, student, train_data, loss_fn, epochs=10, device='cuda', patience=3):
+def distill(teacher, student, train_data, val_data, loss_fn, epochs=10, device='cuda', patience=3):
     teacher.to(device)
     student.to(device)
     teacher.eval()
     student.train()
-    dataloader = DataLoader(train_data, batch_size=64, shuffle=True)
+    train_dataloader = DataLoader(train_data, batch_size=64, shuffle=True)
+    val_dataloader = DataLoader(val_data, batch_size=64, shuffle=False)
     optimizer = optim.SGD(student.parameters(), lr=0.001, momentum=0.9)
 
     best_loss = float('inf')
     for epoch in range(epochs):
         running_loss = 0.0
-        for inputs, labels in tqdm(dataloader):
+        for inputs, labels in tqdm(train_dataloader, desc="distillation training"):
             inputs = inputs.to(device)
             labels = labels.to(device)
             teacher_outputs = teacher(inputs)
@@ -96,9 +99,20 @@ def distill(teacher, student, train_data, loss_fn, epochs=10, device='cuda', pat
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
-        print(f'Epoch {epoch+1}: Loss = {running_loss/len(dataloader)}')
-        if running_loss < best_loss:
-            best_loss = running_loss
+
+        val_loss = 0.0
+        with torch.no_grad():
+            for inputs, labels in tqdm(val_dataloader, desc="distillation validation"):
+                inputs = inputs.to(device)
+                labels = labels.to(device)
+                teacher_outputs = teacher(inputs)
+                student_outputs = student(inputs)
+                loss = loss_fn(student_outputs, teacher_outputs)
+                val_loss += loss.item()
+
+        print(f'Epoch {epoch+1}: training loss={running_loss/len(train_dataloader)}, validation loss={val_loss/len(val_dataloader)}')
+        if val_loss < best_loss:
+            best_loss = val_loss
             patience = 3
         else:
             patience -= 1
@@ -134,9 +148,14 @@ num_train = num_train - num_val
 party_B_train, party_B_val = random_split(party_B_data, [num_train, num_val])
 
 # Define models
-cloud_model = resnet152(weights=None, num_classes=10)
-party_A_model = mobilenet_v3_small(weights=None, num_classes=10)
-party_B_model = mobilenet_v3_large(weights=None, num_classes=10)
+feature_extractor = FeatureExtractor()
+classifier = Classifier(256, 10)
+cloud_backbone = resnet152(weights=None, num_classes=256)
+cloud_model = nn.Sequential(feature_extractor, cloud_backbone, classifier)
+party_A_backbone = mobilenet_v3_small(weights=None, num_classes=256)
+party_A_model = nn.Sequential(feature_extractor, party_A_backbone, classifier)
+party_B_backbone = mobilenet_v3_large(weights=None, num_classes=256)
+party_B_model = nn.Sequential(feature_extractor, party_B_backbone, classifier)
 
 # Train models respectively with the splitted dataset
 print(">>> Start training cloud model...")
@@ -152,17 +171,19 @@ train(party_B_model, party_B_train, party_B_val)
 party_B_acc = test(party_B_model, test_data)
 
 # Perform knowledge distillation from parties to the cloud
-# print(">>> Start distillation from party A to cloud...")
-# distill(party_A_model, cloud_model, party_A_data, loss_fn_kd)
-# cloud_acc_kd1 = test(cloud_model, test_dataset)
+print(">>> Start distillation from party A to cloud...")
+# distill(nn.Sequential(feature_extractor, party_A_backbone), nn.Sequential(feature_extractor, cloud_backbone), party_A_train, party_A_val, loss_fn_kd)
+distill(party_A_model, cloud_model, party_A_train, party_A_val, loss_fn_kd)
+cloud_acc_kd1 = test(cloud_model, test_data)
 
 # print(">>> Start fine-tuning cloud model...")
 # train(cloud_model, cloud_data, epochs=10)  # fine-tuning
 # cloud_acc_finetune1 = test(cloud_model, test_dataset)
 
-# print(">>> Start distillation from party B to cloud...")
-# distill(party_B_model, cloud_model, party_B_data, loss_fn_kd)
-# cloud_acc_kd2 = test(cloud_model, test_dataset)
+print(">>> Start distillation from party B to cloud...")
+# distill(nn.Sequential(feature_extractor, party_B_backbone), nn.Sequential(feature_extractor, cloud_backbone), party_B_train, party_B_val, loss_fn_kd)
+distill(party_B_model, cloud_model, party_B_train, party_B_val, loss_fn_kd)
+cloud_acc_kd2 = test(cloud_model, test_data)
 
 # print(">>> Start fine-tuning cloud model...")
 # train(cloud_model, cloud_data, epochs=10)  # fine-tuning
@@ -171,9 +192,9 @@ party_B_acc = test(party_B_model, test_data)
 print(f'Cloud model accuracy: {cloud_acc:.4f}')
 print(f'Party A model accuracy: {party_A_acc:.4f}')
 print(f'Party B model accuracy: {party_B_acc:.4f}')
-# print(f'Cloud model accuracy after distillation from party A: {cloud_acc_kd1:.4f}')
+print(f'Cloud model accuracy after distillation from party A: {cloud_acc_kd1:.4f}')
 # print(f'Cloud model accuracy after fine-tuning: {cloud_acc_finetune1:.4f}')
-# print(f'Cloud model accuracy after distillation from party B: {cloud_acc_kd2:.4f}')
+print(f'Cloud model accuracy after distillation from party B: {cloud_acc_kd2:.4f}')
 # print(f'Cloud model accuracy after fine-tuning: {cloud_acc_finetune2:.4f}')
 
 # TODO:
