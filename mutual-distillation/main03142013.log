@@ -1,0 +1,93 @@
+Files already downloaded and verified
+Files already downloaded and verified
+>>> Start training cloud model...
+Epoch 1: training loss=2.3327478984045604, validation loss=2.2906546145677567
+Epoch 2: training loss=2.288978107391842, validation loss=2.280778184533119
+Epoch 3: training loss=2.264734457409571, validation loss=2.2556982338428497
+Epoch 4: training loss=2.2171994353097584, validation loss=2.1956899762153625
+Epoch 5: training loss=2.1469954498230464, validation loss=2.1423448771238327
+Epoch 6: training loss=2.0886522266599865, validation loss=2.0944768115878105
+Epoch 7: training loss=2.040755135672433, validation loss=2.084876485168934
+Epoch 8: training loss=1.999319695291065, validation loss=2.0693078860640526
+Epoch 9: training loss=1.9507892794079251, validation loss=2.0472517907619476
+Epoch 10: training loss=1.9173819848469325, validation loss=2.030178725719452
+Epoch 11: training loss=1.8641564883883037, validation loss=2.028834819793701
+Epoch 12: training loss=1.8108734554714627, validation loss=1.977036714553833
+Epoch 13: training loss=1.7587042782041762, validation loss=1.9831916838884354
+Epoch 14: training loss=1.7243511298346141, validation loss=2.02972711622715
+Epoch 15: training loss=1.6352501634567502, validation loss=2.064680516719818
+Early stop at epoch 15.
+>>> Start training party A model...
+Epoch 1: training loss=2.14186038362219, validation loss=1.9869246936180223
+Epoch 2: training loss=1.7912758229472112, validation loss=1.5855231536945826
+Epoch 3: training loss=1.4140918449307165, validation loss=1.3517244819184424
+Epoch 4: training loss=1.2318964342698984, validation loss=1.2035605420529003
+Epoch 5: training loss=1.1204406728981235, validation loss=1.1274941530026181
+Epoch 6: training loss=1.040473754947067, validation loss=1.0729123672968905
+Epoch 7: training loss=0.993590974850012, validation loss=1.0578848308240865
+Epoch 8: training loss=0.9434756859608576, validation loss=1.0300174783652938
+Epoch 9: training loss=0.9133960913259087, validation loss=1.0280523996957591
+Epoch 10: training loss=0.8781091921718408, validation loss=1.0138485943767386
+Epoch 11: training loss=0.8578767205806489, validation loss=0.9987426123148958
+Epoch 12: training loss=0.8335198812873651, validation loss=0.9958938905890559
+Epoch 13: training loss=0.8104598727209348, validation loss=0.9902053022048842
+Epoch 14: training loss=0.7816363818256568, validation loss=0.9948595099046197
+Epoch 15: training loss=0.7732763053677606, validation loss=0.991767513080382
+Epoch 16: training loss=0.7504022723816811, validation loss=0.9777813058503917
+Epoch 17: training loss=0.7300446633751511, validation loss=0.992101208424904
+Epoch 18: training loss=0.7138143548517363, validation loss=1.0066728986484903
+Epoch 19: training loss=0.6863763823788217, validation loss=1.0020373564370921
+Early stop at epoch 19.
+>>> Start training party B model...
+Epoch 1: training loss=2.134182246018809, validation loss=1.9379559050143604
+Epoch 2: training loss=1.6626180930340544, validation loss=1.4058455010535011
+Epoch 3: training loss=1.2322866477019399, validation loss=1.1098609130147477
+Epoch 4: training loss=1.0031615299113252, validation loss=0.9624945177158839
+Epoch 5: training loss=0.8563330194628831, validation loss=0.8506707960451153
+Epoch 6: training loss=0.7542524259563879, validation loss=0.7940844259631465
+Epoch 7: training loss=0.6860984340838506, validation loss=0.7544093425844757
+Epoch 8: training loss=0.6280753592438731, validation loss=0.7543624601733516
+Epoch 9: training loss=0.5755546759840444, validation loss=0.7423494470791078
+Epoch 10: training loss=0.542740284973848, validation loss=0.752703458910257
+Epoch 11: training loss=0.5037795735377792, validation loss=0.745301087977181
+Epoch 12: training loss=0.4698295817307547, validation loss=0.7392599939460486
+Epoch 13: training loss=0.4443603693276432, validation loss=0.7354893797719982
+Epoch 14: training loss=0.429171935622151, validation loss=0.7494874029931887
+Epoch 15: training loss=0.395864337894088, validation loss=0.751175859864329
+Epoch 16: training loss=0.37473158797262407, validation loss=0.7822279350858339
+Early stop at epoch 16.
+>>> Start distillation from party A to cloud...
+Epoch 1: training loss=0.19839074008219632
+Epoch 2: training loss=0.33519729517453106
+Epoch 3: training loss=0.28559730381619003
+Epoch 4: training loss=0.271285142538184
+Epoch 5: training loss=0.2580501587255627
+>>> Start distillation from party B to cloud...
+Epoch 1: training loss=0.7614140225217697
+Epoch 2: training loss=0.7185520130269071
+Epoch 3: training loss=0.7064872498207904
+Epoch 4: training loss=0.6862816741914614
+Epoch 5: training loss=0.6518051468945564
+>>> Start distillation from cloud to party A...
+Epoch 1: training loss=2.2977960407733917
+Epoch 2: training loss=1.4635349024855902
+Epoch 3: training loss=1.4689188802999162
+Epoch 4: training loss=1.4239230804027072
+Epoch 5: training loss=1.430768613540937
+>>> Start distillation from cloud to party B...
+Epoch 1: training loss=1.993650906615787
+Epoch 2: training loss=1.3994590957013389
+Epoch 3: training loss=1.3234160102549053
+Epoch 4: training loss=1.2814507810842424
+Epoch 5: training loss=1.255406333340539
+Cloud model accuracy: 0.2671
+Party A model accuracy: 0.3185
+Party B model accuracy: 0.3777
+Cloud model accuracy after distillation from party A: 0.1000
+Cloud model accuracy after distillation from party B: 0.0820
+Party A accuracy after distillation from cloud: 0.3196
+Party B accuracy after distillation from cloud: 0.3358
+
+Comments:
+1. 增加了finetune部分，但是也只是缓和了端侧性能降低，并没有实现性能上的增益。
+2. 云侧的性能还是明显降低；但是云侧的测试性能受限于云侧的特征提取模块和分类器得不到增益，其性能表现可能需要通过端侧来体现。
