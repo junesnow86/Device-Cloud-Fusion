@@ -139,8 +139,8 @@ def distill(teacher, student, train_data, finetune_data, epochs=5, device='cuda'
 
 # Load CIFAR-10 dataset
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-train_data = CIFAR100(root='./data', train=True, download=True, transform=transform)
-test_data = CIFAR100(root='./data', train=False, download=True, transform=transform)
+train_data = CIFAR10(root='./data', train=True, download=True, transform=transform)
+test_data = CIFAR10(root='./data', train=False, download=True, transform=transform)
 
 # Split data into cloud part and parties part
 cloud_size = len(train_data) // 10
@@ -151,10 +151,10 @@ cloud_train, parties_train = random_split(train_data, [cloud_size, participant_s
 labels = [y for _, y in parties_train]
 indices = np.array(range(len(labels)))
 
-# partyA_classes = [0, 1, 2, 3, 4]
-# partyB_classes = [5, 6, 7, 8, 9]
-partyA_classes = list(range(50))
-partyB_classes = list(range(50, 100))
+partyA_classes = [0, 1, 2, 3, 4]
+partyB_classes = [5, 6, 7, 8, 9]
+# partyA_classes = list(range(50))
+# partyB_classes = list(range(50, 100))
 
 partyA_indices = np.where(np.isin(labels, partyA_classes))[0]
 partyB_indices = np.where(np.isin(labels, partyB_classes))[0]
@@ -192,6 +192,10 @@ party_B_clf = Classifier(256, 100)
 party_B_backbone = mobilenet_v3_large(weights=None, num_classes=256)
 party_B_model = nn.Sequential(party_B_fe, party_B_backbone, party_B_clf)
 
+cloud_model = resnet152(weights=None, num_classes=10)
+party_A_model = mobilenet_v3_small(weights=None, num_classes=10)
+party_B_model = mobilenet_v3_large(weights=None, num_classes=10)
+
 # Train models respectively with the splitted dataset
 print(">>> Start training cloud model...")
 train(cloud_model, cloud_train, cloud_val)
@@ -208,10 +212,11 @@ party_B_acc = test(party_B_model, test_data)
 # Perform knowledge distillation from parties to the cloud
 print(">>> Start distillation from party A to cloud...")
 # distill(nn.Sequential(feature_extractor, party_A_backbone), nn.Sequential(feature_extractor, cloud_backbone), party_A_train, party_A_val, loss_fn_kd)
-distil_train_data_A = ExtractedFeaturesDataset(partyA_train, party_A_fe)
+# distil_train_data_A = ExtractedFeaturesDataset(partyA_train, party_A_fe)
 # distil_val_data_A = ExtractedFeaturesDataset(partyA_val, party_A_fe)
-distil_cloud_data = ExtractedFeaturesDataset(cloud_train, cloud_fe)
-distill(party_A_backbone, cloud_backbone, distil_train_data_A, distil_cloud_data)
+# distil_cloud_data = ExtractedFeaturesDataset(cloud_train, cloud_fe)
+# distill(party_A_backbone, cloud_backbone, distil_train_data_A, distil_cloud_data)
+distill(party_A_model, cloud_model, partyA_train, cloud_train)
 cloud_acc_kd1 = test(cloud_model, test_data)
 
 # print(">>> Start fine-tuning cloud model...")
@@ -220,9 +225,10 @@ cloud_acc_kd1 = test(cloud_model, test_data)
 
 print(">>> Start distillation from party B to cloud...")
 # distill(nn.Sequential(feature_extractor, party_B_backbone), nn.Sequential(feature_extractor, cloud_backbone), party_B_train, party_B_val, loss_fn_kd)
-distil_train_data_B = ExtractedFeaturesDataset(partyB_train, party_B_fe)
+# distil_train_data_B = ExtractedFeaturesDataset(partyB_train, party_B_fe)
 # distil_val_data_B = ExtractedFeaturesDataset(partyB_val, party_B_fe)
-distill(party_B_model, cloud_model, distil_train_data_B, distil_cloud_data)
+# distill(party_B_model, cloud_model, distil_train_data_B, distil_cloud_data)
+distill(party_B_model, cloud_model, partyB_train, cloud_train)
 cloud_acc_kd2 = test(cloud_model, test_data)
 
 # print(">>> Start fine-tuning cloud model...")
@@ -231,11 +237,13 @@ cloud_acc_kd2 = test(cloud_model, test_data)
 
 # Perform KD from cloud backbone to parties
 print(">>> Start distillation from cloud to party A...")
-distill(cloud_backbone, party_A_backbone, distil_cloud_data, distil_train_data_A)
+# distill(cloud_backbone, party_A_backbone, distil_cloud_data, distil_train_data_A)
+distill(cloud_model, party_A_model, cloud_train, partyA_train)
 party_A_acc_kd = test(party_A_model, test_data)
 
 print(">>> Start distillation from cloud to party B...")
-distill(cloud_backbone, party_B_backbone, distil_cloud_data, distil_train_data_B)
+# distill(cloud_backbone, party_B_backbone, distil_cloud_data, distil_train_data_B)
+distill(cloud_model, party_B_model, cloud_train, partyB_train)
 party_B_acc_kd = test(party_B_model, test_data)
 
 # Print results
@@ -243,9 +251,7 @@ print(f'Cloud model accuracy: {cloud_acc:.4f}')
 print(f'Party A model accuracy: {party_A_acc:.4f}')
 print(f'Party B model accuracy: {party_B_acc:.4f}')
 print(f'Cloud model accuracy after distillation from party A: {cloud_acc_kd1:.4f}')
-# print(f'Cloud model accuracy after fine-tuning: {cloud_acc_finetune1:.4f}')
 print(f'Cloud model accuracy after distillation from party B: {cloud_acc_kd2:.4f}')
-# print(f'Cloud model accuracy after fine-tuning: {cloud_acc_finetune2:.4f}')
 print(f"Party A accuracy after distillation from cloud: {party_A_acc_kd:.4f}")
 print(f"Party B accuracy after distillation from cloud: {party_B_acc_kd:.4f}")
 

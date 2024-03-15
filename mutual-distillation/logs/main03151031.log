@@ -1,0 +1,77 @@
+Files already downloaded and verified
+Files already downloaded and verified
+>>> Start training cloud model...
+Epoch 1: training loss=2.5053548623645114, validation loss=2.3057930320501328
+Epoch 2: training loss=2.3436836477309937, validation loss=2.3478265404701233
+Epoch 3: training loss=2.273602076939174, validation loss=2.2949910163879395
+Epoch 4: training loss=2.157346634637742, validation loss=2.151480995118618
+Epoch 5: training loss=2.0592876540289984, validation loss=2.161222629249096
+Epoch 6: training loss=2.037467089910356, validation loss=2.1964573562145233
+Epoch 7: training loss=1.9593202840714228, validation loss=2.016227290034294
+Epoch 8: training loss=1.9296774977729434, validation loss=1.9907562881708145
+Epoch 9: training loss=1.8396343219847906, validation loss=1.9645431190729141
+Epoch 10: training loss=1.7878931136358351, validation loss=2.0508426651358604
+Epoch 11: training loss=1.6671373484626648, validation loss=2.0196468606591225
+Epoch 12: training loss=1.6749314183280581, validation loss=2.029167518019676
+Early stop at epoch 12.
+>>> Start training party A model...
+Epoch 1: training loss=2.029152864663202, validation loss=1.6656829118728638
+Epoch 2: training loss=1.3908931903567603, validation loss=1.2168333983757127
+Epoch 3: training loss=1.1191437479864237, validation loss=1.0673305534980666
+Epoch 4: training loss=1.0055923173436065, validation loss=1.007382781572745
+Epoch 5: training loss=0.9450697616750235, validation loss=0.9642913366707278
+Epoch 6: training loss=0.8873549716752619, validation loss=0.9531139043015493
+Epoch 7: training loss=0.8540287147213131, validation loss=0.9627481497509379
+Epoch 8: training loss=0.8161825906763721, validation loss=0.9388788392846014
+Epoch 9: training loss=0.7912720747265527, validation loss=0.9189281673498557
+Epoch 10: training loss=0.7615295362217995, validation loss=0.9301846598235655
+Epoch 11: training loss=0.7452309845393239, validation loss=0.9477442318285015
+Epoch 12: training loss=0.7193562528416779, validation loss=0.9666039599499232
+Early stop at epoch 12.
+>>> Start training party B model...
+Epoch 1: training loss=1.894471841923734, validation loss=1.3476226077952855
+Epoch 2: training loss=1.1228381416476365, validation loss=0.9513706262682525
+Epoch 3: training loss=0.8671813858739028, validation loss=0.8137347899692159
+Epoch 4: training loss=0.7472256285713074, validation loss=0.7600658095218766
+Epoch 5: training loss=0.6614078379480551, validation loss=0.7160108110434572
+Epoch 6: training loss=0.6070573241152661, validation loss=0.7253304027335744
+Epoch 7: training loss=0.5605241754587661, validation loss=0.6778214439539842
+Epoch 8: training loss=0.522639144502633, validation loss=0.6843422609315791
+Epoch 9: training loss=0.48357987609949515, validation loss=0.6870418677867298
+Epoch 10: training loss=0.44997813795686614, validation loss=0.7050444953878161
+Early stop at epoch 10.
+>>> Start distillation from party A to cloud...
+Epoch 1: training loss=0.5407850920517674
+Epoch 2: training loss=0.471165628938064
+Epoch 3: training loss=0.4296394878222849
+Epoch 4: training loss=0.39835019680104644
+Epoch 5: training loss=0.3804237289466892
+>>> Start distillation from party B to cloud...
+Epoch 1: training loss=0.6335591952851478
+Epoch 2: training loss=0.5333958623257089
+Epoch 3: training loss=0.5037412912921703
+Epoch 4: training loss=0.4467367654573833
+Epoch 5: training loss=0.41975427714856806
+>>> Start distillation from cloud to party A...
+Epoch 1: training loss=2.120772912388756
+Epoch 2: training loss=1.6367679720833188
+Epoch 3: training loss=1.4506584472126431
+Epoch 4: training loss=1.3374868924655612
+Epoch 5: training loss=1.2953556265149797
+>>> Start distillation from cloud to party B...
+Epoch 1: training loss=2.3475716757395912
+Epoch 2: training loss=1.6607793058667863
+Epoch 3: training loss=1.4536372394788832
+Epoch 4: training loss=1.3644274813788277
+Epoch 5: training loss=1.3049290587031652
+Cloud model accuracy: 0.3082
+Party A model accuracy: 0.3276
+Party B model accuracy: 0.3817
+Cloud model accuracy after distillation from party A: 0.3667
+Cloud model accuracy after distillation from party B: 0.4157
+Party A accuracy after distillation from cloud: 0.3247
+Party B accuracy after distillation from cloud: 0.3786
+
+Comments:
+1. 不分离前后的特征提取模块和分类器，cloud model的性能在蒸馏（结合cloud data微调）后确实得到了提升
+2. 但是两个参与方蒸馏后的性能都下降了
