@@ -3,16 +3,15 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms as transforms
+from data import ExtractedFeaturesDataset
+from models import Classifier, FeatureExtractor
 from torch.utils.data import DataLoader, Subset, random_split
 from torchvision.datasets import CIFAR10, CIFAR100
-from torchvision.models import mobilenet_v3_small, mobilenet_v3_large, resnet152
+from torchvision.models import mobilenet_v3_large, mobilenet_v3_small, resnet152
 from tqdm import tqdm
 
-from models import FeatureExtractor, Classifier
-from data import ExtractedFeaturesDataset
 
-
-def train(model, train_data, val_data, epochs=50, device='cuda', patience=3):
+def train(model, train_data, val_data, epochs=50, device="cuda", patience=3):
     model.to(device)
     model.train()
     train_dataloader = DataLoader(train_data, batch_size=64, shuffle=True)
@@ -20,7 +19,7 @@ def train(model, train_data, val_data, epochs=50, device='cuda', patience=3):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
-    best_loss = float('inf')
+    best_loss = float("inf")
     for epoch in range(epochs):
         running_loss = 0.0
         for inputs, labels in tqdm(train_dataloader, desc="training"):
@@ -42,8 +41,10 @@ def train(model, train_data, val_data, epochs=50, device='cuda', patience=3):
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
                 val_loss += loss.item()
-        
-        print(f'Epoch {epoch+1}: training loss={running_loss/len(train_dataloader)}, validation loss={val_loss/len(val_dataloader)}')
+
+        print(
+            f"Epoch {epoch+1}: training loss={running_loss/len(train_dataloader)}, validation loss={val_loss/len(val_dataloader)}"
+        )
         if val_loss < best_loss:
             best_loss = val_loss
             patience = 3
@@ -53,7 +54,8 @@ def train(model, train_data, val_data, epochs=50, device='cuda', patience=3):
                 print(f"Early stop at epoch {epoch+1}.")
                 break
 
-def test(model, data, device='cuda'):
+
+def test(model, data, device="cuda"):
     model.to(device)
     model.eval()
     dataloader = DataLoader(data, batch_size=64, shuffle=False)
@@ -70,16 +72,24 @@ def test(model, data, device='cuda'):
 
     return correct / total
 
-def distill(teacher, student, train_data, finetune_data, epochs=5, device='cuda', patience=3):
+
+def distill(
+    teacher, student, train_data, finetune_data, epochs=5, device="cuda", patience=3
+):
     """
     train_data: the data used to teach the student model
     finetune_data: the date used to fine-tune the student model
     """
-    def loss_fn_kd(outputs, teacher_outputs, labels=None, T=1, alpha=0.5, with_labels=False):
-        soft_loss = nn.KLDivLoss(reduction="batchmean")(nn.functional.log_softmax(outputs/T, dim=1),
-                                nn.functional.softmax(teacher_outputs/T, dim=1)) * (T * T)
+
+    def loss_fn_kd(
+        outputs, teacher_outputs, labels=None, T=1, alpha=0.5, with_labels=False
+    ):
+        soft_loss = nn.KLDivLoss(reduction="batchmean")(
+            nn.functional.log_softmax(outputs / T, dim=1),
+            nn.functional.softmax(teacher_outputs / T, dim=1),
+        ) * (T * T)
         if with_labels:
-            hard_loss = nn.CrossEntropyLoss()(outputs, labels) * (1. - alpha)
+            hard_loss = nn.CrossEntropyLoss()(outputs, labels) * (1.0 - alpha)
             soft_loss = soft_loss * alpha + hard_loss
         return soft_loss
 
@@ -107,7 +117,9 @@ def distill(teacher, student, train_data, finetune_data, epochs=5, device='cuda'
             optimizer.step()
             running_loss += loss.item()
 
-        for inputs, labels in tqdm(finetune_dataloader, desc="distillation fine-tuning"):
+        for inputs, labels in tqdm(
+            finetune_dataloader, desc="distillation fine-tuning"
+        ):
             # use hard labels to avoid catastrophic forgetting
             inputs = inputs.to(device)
             labels = labels.to(device)
@@ -127,7 +139,7 @@ def distill(teacher, student, train_data, finetune_data, epochs=5, device='cuda'
         #         loss = loss_fn(student_outputs, teacher_outputs)
         #         val_loss += loss.item()
 
-        print(f'Epoch {epoch+1}: training loss={running_loss/len(train_dataloader)}')
+        print(f"Epoch {epoch+1}: training loss={running_loss/len(train_dataloader)}")
         # if val_loss < best_loss:
         #     best_loss = val_loss
         #     patience = 3
@@ -137,10 +149,13 @@ def distill(teacher, student, train_data, finetune_data, epochs=5, device='cuda'
         #         print(f"Early stop at epoch {epoch+1}.")
         #         break
 
+
 # Load CIFAR-10 dataset
-transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-train_data = CIFAR10(root='./data', train=True, download=True, transform=transform)
-test_data = CIFAR10(root='./data', train=False, download=True, transform=transform)
+transform = transforms.Compose(
+    [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+)
+train_data = CIFAR10(root="./data", train=True, download=True, transform=transform)
+test_data = CIFAR10(root="./data", train=False, download=True, transform=transform)
 
 # Split data into cloud part and parties part
 cloud_size = len(train_data) // 10
@@ -169,11 +184,15 @@ cloud_train, cloud_val = random_split(cloud_train, [cloud_train_size, cloud_val_
 
 partyA_train_size = len(partyA_train) * 8 // 10
 partyA_val_size = len(partyA_train) - partyA_train_size
-partyA_train, partyA_val = random_split(partyA_train, [partyA_train_size, partyA_val_size])
+partyA_train, partyA_val = random_split(
+    partyA_train, [partyA_train_size, partyA_val_size]
+)
 
 partyB_train_size = len(partyB_train) * 8 // 10
 partyB_val_size = len(partyB_train) - partyB_train_size
-partyB_train, partyB_val = random_split(partyB_train, [partyB_train_size, partyB_val_size])
+partyB_train, partyB_val = random_split(
+    partyB_train, [partyB_train_size, partyB_val_size]
+)
 
 
 # Define models
@@ -247,12 +266,14 @@ distill(cloud_model, party_B_model, cloud_train, partyB_train)
 party_B_acc_kd = test(party_B_model, test_data)
 
 # Print results
-print(f'Cloud model accuracy: {cloud_acc:.4f}')
-print(f'Party A model accuracy: {party_A_acc:.4f}')
-print(f'Party B model accuracy: {party_B_acc:.4f}')
-print(f'Cloud model accuracy after distillation from party A: {cloud_acc_kd1:.4f}')
-print(f'Cloud model accuracy after distillation from party B: {cloud_acc_kd2:.4f}')
+print(f"Cloud model accuracy: {cloud_acc:.4f}")
+print(f"Party A model accuracy: {party_A_acc:.4f}")
+print(f"Party B model accuracy: {party_B_acc:.4f}")
+print(f"Cloud model accuracy after distillation from party A: {cloud_acc_kd1:.4f}")
+print(f"Cloud model accuracy after distillation from party B: {cloud_acc_kd2:.4f}")
 print(f"Party A accuracy after distillation from cloud: {party_A_acc_kd:.4f}")
 print(f"Party B accuracy after distillation from cloud: {party_B_acc_kd:.4f}")
 
 # TODO:
+# - 共享特征提取器和分类器层，但是需要处理non-iid所导致的参数加权平均效果不理想的问题
+# - 修改数据分布，参与方不是垄断某些类，而是每个类都有一定比例的数据
