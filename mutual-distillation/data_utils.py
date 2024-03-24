@@ -61,8 +61,6 @@ def dirichlet_split(dataset, num_participants, num_classes=None):
         # If there are any remaining samples, add them to the first participant
         num_samples[0] += len(class_indices) - sum(num_samples)
 
-        print(num_samples)
-
         # Randomly shuffle the indices
         np.random.shuffle(class_indices)
 

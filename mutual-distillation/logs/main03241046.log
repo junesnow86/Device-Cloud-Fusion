@@ -1,0 +1,258 @@
+[63, 3256, 1681]
+[1424, 2409, 1167]
+[776, 1453, 2771]
+[197, 4134, 669]
+[1377, 2312, 1311]
+[1075, 1000, 2925]
+[197, 1981, 2822]
+[4349, 266, 385]
+[2301, 1987, 712]
+[3084, 899, 1017]
+>>> Training participant 1
+Epoch 1: training loss=2.854525237761695, validation loss=3.7045169027545786
+Epoch 2: training loss=2.042532368980605, validation loss=3.1134612982786156
+Epoch 3: training loss=1.8027628793798645, validation loss=2.899943839145612
+Epoch 4: training loss=1.7156826930827107, validation loss=2.859888948971712
+Epoch 5: training loss=1.6547924382933255, validation loss=2.721782368949697
+Epoch 6: training loss=1.6017936344804435, validation loss=2.6254186418992056
+Epoch 7: training loss=1.5521684021785342, validation loss=2.6107869540588764
+Epoch 8: training loss=1.5180187651823307, validation loss=2.5743931018853488
+Epoch 9: training loss=1.4744998000819107, validation loss=2.5359178374085247
+Epoch 10: training loss=1.4458408484171177, validation loss=2.4311701859099957
+Epoch 11: training loss=1.4114329408982704, validation loss=2.44018275979199
+Epoch 12: training loss=1.3993847652755935, validation loss=2.4284986800785306
+Epoch 13: training loss=1.3666114380647396, validation loss=2.4144341462775123
+Epoch 14: training loss=1.3465408726498997, validation loss=2.3344371122649954
+Epoch 15: training loss=1.3202722542758645, validation loss=2.3521384725087806
+Epoch 16: training loss=1.309112951930227, validation loss=2.321315863464452
+Epoch 17: training loss=1.2782846779145043, validation loss=2.3731391626068308
+Epoch 18: training loss=1.27772447338392, validation loss=2.413784398308283
+Epoch 19: training loss=1.258889276148944, validation loss=2.2648143587233145
+Epoch 20: training loss=1.2398254835400089, validation loss=2.298118206519115
+Epoch 21: training loss=1.2177311079255466, validation loss=2.2950778988343252
+Epoch 22: training loss=1.2145443969759449, validation loss=2.1284689314757723
+Epoch 23: training loss=1.1945014028199787, validation loss=2.2636180421974084
+Epoch 24: training loss=1.184394798659045, validation loss=2.2116893273365648
+Epoch 25: training loss=1.1790231399495026, validation loss=2.4452039456065697
+Epoch 26: training loss=1.1628941649506832, validation loss=2.1968060460271714
+Epoch 27: training loss=1.1487560336445939, validation loss=2.247407513328745
+Early stop at epoch 27.
+>>> Training participant 2
+Epoch 1: training loss=3.200560003132015, validation loss=3.109171372425707
+Epoch 2: training loss=2.345183644975935, validation loss=2.8147819162924077
+Epoch 3: training loss=2.165685498095178, validation loss=2.671557372129416
+Epoch 4: training loss=2.062241638248617, validation loss=2.5683169183851797
+Epoch 5: training loss=1.98284796654404, validation loss=2.5001167798344093
+Epoch 6: training loss=1.9206011980384976, validation loss=2.4123593780058847
+Epoch 7: training loss=1.8629202231184228, validation loss=2.3609226911882812
+Epoch 8: training loss=1.8260472676196655, validation loss=2.299891731407069
+Epoch 9: training loss=1.7902908979298233, validation loss=2.2710602555093886
+Epoch 10: training loss=1.758457367683386, validation loss=2.2300697519809387
+Epoch 11: training loss=1.7107531606376944, validation loss=2.1909326088579397
+Epoch 12: training loss=1.674994170665741, validation loss=2.158238549775715
+Epoch 13: training loss=1.6424561154532742, validation loss=2.1355862089350253
+Epoch 14: training loss=1.6133307315312422, validation loss=2.107235009157205
+Epoch 15: training loss=1.5917805909336387, validation loss=2.095281677910044
+Epoch 16: training loss=1.5609482573224354, validation loss=2.0625794914704336
+Epoch 17: training loss=1.5264064754758562, validation loss=2.040644541571412
+Epoch 18: training loss=1.5003719802026625, validation loss=2.023375643959528
+Epoch 19: training loss=1.4661236966585185, validation loss=2.01394460020186
+Epoch 20: training loss=1.4370320474172567, validation loss=1.9959776567507395
+Epoch 21: training loss=1.4191993676222765, validation loss=1.9960503276390364
+Epoch 22: training loss=1.3861605017990262, validation loss=1.9751433677311185
+Epoch 23: training loss=1.364467491577198, validation loss=1.9664581983904295
+Epoch 24: training loss=1.3409133526411923, validation loss=1.9524883605256866
+Epoch 25: training loss=1.317419320344925, validation loss=1.9706327990640569
+Epoch 26: training loss=1.2877835064352332, validation loss=1.9520125826702843
+Epoch 27: training loss=1.2784882056248652, validation loss=1.9652955094470252
+Epoch 28: training loss=1.2474544948184645, validation loss=1.9553039617176298
+Epoch 29: training loss=1.2248724472600143, validation loss=1.9468521226810505
+Epoch 30: training loss=1.2079695743786825, validation loss=1.9422441298448587
+Epoch 31: training loss=1.190199509069517, validation loss=1.9549952247474767
+Epoch 32: training loss=1.1589486666701057, validation loss=1.950297843051862
+Epoch 33: training loss=1.1434511064321964, validation loss=1.9516393444206142
+Epoch 34: training loss=1.1211544356562875, validation loss=1.966803274577177
+Epoch 35: training loss=1.0977470361954207, validation loss=1.9665889905977854
+Early stop at epoch 35.
+>>> Training participant 3
+Epoch 1: training loss=4.6870410442352295, validation loss=4.673117172868946
+Epoch 2: training loss=4.635267586747477, validation loss=4.63295185113255
+Epoch 3: training loss=4.579529502175071, validation loss=4.589156905307045
+Epoch 4: training loss=4.517612339051301, validation loss=4.539195652249493
+Epoch 5: training loss=4.446311994032427, validation loss=4.480136062525496
+Epoch 6: training loss=4.360205469052653, validation loss=4.407045122943347
+Epoch 7: training loss=4.255130322511531, validation loss=4.315448368651958
+Epoch 8: training loss=4.12038136218205, validation loss=4.1993375669551805
+Epoch 9: training loss=3.9456740607900067, validation loss=4.0481324980530555
+Epoch 10: training loss=3.720483314892477, validation loss=3.853693681427195
+Epoch 11: training loss=3.43325859554543, validation loss=3.62771883795533
+Epoch 12: training loss=3.108658349218447, validation loss=3.401988476137572
+Epoch 13: training loss=2.790225451642817, validation loss=3.207869200766841
+Epoch 14: training loss=2.5209645761931236, validation loss=3.0508058342752578
+Epoch 15: training loss=2.305245518191787, validation loss=2.9272958508020714
+Epoch 16: training loss=2.164740474756099, validation loss=2.8327050903175452
+Epoch 17: training loss=2.0613125503555803, validation loss=2.750799142861668
+Epoch 18: training loss=1.9806219019180487, validation loss=2.6852373352533654
+Epoch 19: training loss=1.9202641091070884, validation loss=2.6163547491725487
+Epoch 20: training loss=1.8665598951095392, validation loss=2.5680216415018977
+Epoch 21: training loss=1.8198969492242356, validation loss=2.5246613448179223
+Epoch 22: training loss=1.782802771438252, validation loss=2.47900294653977
+Epoch 23: training loss=1.743510413268381, validation loss=2.4364640456211717
+Epoch 24: training loss=1.7105962604530587, validation loss=2.4009381683566904
+Epoch 25: training loss=1.6822466638462603, validation loss=2.3673822985419744
+Epoch 26: training loss=1.6514580136488293, validation loss=2.341886298565925
+Epoch 27: training loss=1.624421563522875, validation loss=2.31172726878637
+Epoch 28: training loss=1.5993974632468104, validation loss=2.2940849820269813
+Epoch 29: training loss=1.5758267813477635, validation loss=2.270877626877797
+Epoch 30: training loss=1.55628236118427, validation loss=2.2604480166978473
+Epoch 31: training loss=1.5341142637670533, validation loss=2.227487508254715
+Epoch 32: training loss=1.518838605604881, validation loss=2.221554904044429
+Epoch 33: training loss=1.4978736461686695, validation loss=2.218862239318558
+Epoch 34: training loss=1.4868280651155583, validation loss=2.196598464929605
+Epoch 35: training loss=1.4705849122409977, validation loss=2.1880663965321796
+Epoch 36: training loss=1.4513470579769985, validation loss=2.1822884188422673
+Epoch 37: training loss=1.4354601275822347, validation loss=2.175694270979
+Epoch 38: training loss=1.4274114232417965, validation loss=2.171756928480124
+Epoch 39: training loss=1.410439031183227, validation loss=2.162090220028841
+Epoch 40: training loss=1.3967364617615692, validation loss=2.1611126253876507
+Epoch 41: training loss=1.3793242194435813, validation loss=2.167746663093567
+Epoch 42: training loss=1.3674596548080444, validation loss=2.1521720614614366
+Epoch 43: training loss=1.3621686687154217, validation loss=2.1628207224833815
+Epoch 44: training loss=1.3520445375403096, validation loss=2.1594133286536494
+Epoch 45: training loss=1.3412551707472682, validation loss=2.167966140976435
+Epoch 46: training loss=1.3281829406407253, validation loss=2.1614734839789476
+Epoch 47: training loss=1.3250980071785037, validation loss=2.1585769411883775
+Early stop at epoch 47.
+>>> Training the cloud model...
+Epoch 1: training loss=4.098643304287703, validation loss=3.8845338983969255
+Epoch 2: training loss=3.679406667577809, validation loss=3.52745937759226
+Epoch 3: training loss=3.3756993365013734, validation loss=3.2867315736683933
+Epoch 4: training loss=3.1575878666735244, validation loss=3.1032420667735012
+Epoch 5: training loss=2.9661247058846483, validation loss=2.931241460821845
+Epoch 6: training loss=2.8462314228901917, validation loss=2.84144908731634
+Epoch 7: training loss=2.727383392980729, validation loss=2.7497350004586307
+Epoch 8: training loss=2.6138690490832275, validation loss=2.6442032266746867
+Epoch 9: training loss=2.5286950503272574, validation loss=2.546651997349479
+Epoch 10: training loss=2.416976741675673, validation loss=2.5234405398368835
+Epoch 11: training loss=2.315047722438286, validation loss=2.4104469499804755
+Epoch 12: training loss=2.2226818279288283, validation loss=2.301834913817319
+Epoch 13: training loss=2.1522662077827017, validation loss=2.2501929890025747
+Epoch 14: training loss=2.0643072991535583, validation loss=2.2435203980315817
+Epoch 15: training loss=1.9844366332580303, validation loss=2.138163837519559
+Epoch 16: training loss=1.9404532491475686, validation loss=2.0843328616835852
+Epoch 17: training loss=1.8693644746966747, validation loss=2.0595028427514164
+Epoch 18: training loss=1.821880002816518, validation loss=2.0442578711292962
+Epoch 19: training loss=1.7616716664412926, validation loss=1.9325002973729914
+Epoch 20: training loss=1.6939993206111865, validation loss=1.9552310434254734
+Epoch 21: training loss=1.6475374431445682, validation loss=1.8865362893451343
+Epoch 22: training loss=1.6046956938573684, validation loss=1.870309594002637
+Epoch 23: training loss=1.529795432570337, validation loss=1.7962635972283103
+Epoch 24: training loss=1.4972247700581605, validation loss=1.7794653664935718
+Epoch 25: training loss=1.4559973231677352, validation loss=1.7376246750354767
+Epoch 26: training loss=1.4037148575673157, validation loss=1.724293665452437
+Epoch 27: training loss=1.3610190865637242, validation loss=1.6902780885046178
+Epoch 28: training loss=1.3159574599101627, validation loss=1.6746942604129964
+Epoch 29: training loss=1.2898010594406346, validation loss=1.669934486800974
+Epoch 30: training loss=1.2326530272933258, validation loss=1.6322590844197706
+Epoch 31: training loss=1.2173297035283055, validation loss=1.603953937237913
+Epoch 32: training loss=1.1725611659302109, validation loss=1.555805798281323
+Epoch 33: training loss=1.1319423112375984, validation loss=1.5633109347386793
+Epoch 34: training loss=1.111522213823494, validation loss=1.5333062003959308
+Epoch 35: training loss=1.090238735251043, validation loss=1.509462291544134
+Epoch 36: training loss=1.0204010917537514, validation loss=1.478584897789088
+Epoch 37: training loss=1.0065305078851765, validation loss=1.4844861585985532
+Epoch 38: training loss=0.9790766038771334, validation loss=1.4798190580172972
+Epoch 39: training loss=0.9463696058454185, validation loss=1.4446757950566032
+Epoch 40: training loss=0.9158428621360626, validation loss=1.4500207142396406
+Epoch 41: training loss=0.894190688585413, validation loss=1.4342198141596534
+Epoch 42: training loss=0.8525190320850788, validation loss=1.4038811109282754
+Epoch 43: training loss=0.8456551768313879, validation loss=1.4151103835214267
+Epoch 44: training loss=0.7990249069942825, validation loss=1.406264609911225
+Epoch 45: training loss=0.7699211383688038, validation loss=1.404882538047704
+Epoch 46: training loss=0.7580210050974769, validation loss=1.3570773154497147
+Epoch 47: training loss=0.7222681555939817, validation loss=1.3752730624242262
+Epoch 48: training loss=0.7077615257652327, validation loss=1.3056344078345732
+Epoch 49: training loss=0.6834676649378634, validation loss=1.3292823745445772
+Epoch 50: training loss=0.66796814813011, validation loss=1.3336012376980348
+>>> Distilling participant 1
+[1460, 66, 3474]
+[2652, 1915, 433]
+[619, 4032, 349]
+[3753, 1110, 137]
+[3246, 627, 1127]
+[3534, 1370, 96]
+[970, 611, 3419]
+[1985, 2025, 990]
+[2916, 1132, 952]
+[422, 3173, 1405]
+>>> Distilling participant 1
+>>> Distilling participant 1
+Epoch 1: training loss=4.946538531943426, validation loss=19.845497997327783
+Epoch 2: training loss=0.46535748782264397, validation loss=20.415828737719306
+Epoch 3: training loss=0.3512938433039601, validation loss=20.741319634448523
+Epoch 4: training loss=0.2949789430226819, validation loss=20.90565031424336
+Epoch 5: training loss=0.2759814728534531, validation loss=20.65055152191513
+Epoch 6: training loss=0.25514437514826954, validation loss=20.97869809468587
+Early stop at epoch 6.
+>>> Distilling participant 2
+Epoch 1: training loss=135.8605334875563, validation loss=221.2303570276019
+Epoch 2: training loss=92.69564327657739, validation loss=229.24410239033315
+Epoch 3: training loss=95.32022537346876, validation loss=233.19769480036592
+Epoch 4: training loss=89.95554463801535, validation loss=247.22714592944615
+Epoch 5: training loss=89.48088579012956, validation loss=244.76677133845186
+Epoch 6: training loss=92.97361987468489, validation loss=248.77639603888852
+Early stop at epoch 6.
+>>> Distilling participant 3
+Epoch 1: training loss=73.2404857958514, validation loss=245.4835126153354
+Epoch 2: training loss=0.2995453540675922, validation loss=259.5732123714754
+Epoch 3: training loss=0.17748856767797333, validation loss=268.15614687163253
+Epoch 4: training loss=0.12543746049620577, validation loss=274.2630697666914
+Epoch 5: training loss=0.09636816864978168, validation loss=279.19709234128055
+Epoch 6: training loss=0.07780337804439948, validation loss=283.2077645488169
+Early stop at epoch 6.
+>>> Distilling the cloud model to participant 1
+Epoch 1: training loss=1.6343996463615058, validation loss=3.3471766695022582
+Epoch 2: training loss=1.394256374968151, validation loss=3.039237236118317
+Epoch 3: training loss=1.3001316681902022, validation loss=3.0684182003974914
+Epoch 4: training loss=1.2248877579426618, validation loss=3.1814594060897825
+Epoch 5: training loss=1.1650310831637842, validation loss=2.9470822710990907
+Epoch 6: training loss=1.121348707888895, validation loss=2.977512460851669
+Epoch 7: training loss=1.077139982862639, validation loss=3.00014974899292
+Epoch 8: training loss=1.037805170934548, validation loss=3.0018349759578706
+Epoch 9: training loss=1.0023540382573737, validation loss=2.74202404088974
+Epoch 10: training loss=0.9694626942123965, validation loss=2.888723233509064
+Epoch 11: training loss=0.9510153263960286, validation loss=2.8639361813545228
+Epoch 12: training loss=0.9198370184772313, validation loss=2.933205545949936
+Epoch 13: training loss=0.8892114959733687, validation loss=2.668306169271469
+Epoch 14: training loss=0.8698595303606081, validation loss=2.8696691927433013
+Epoch 15: training loss=0.8456849860321937, validation loss=2.975568926048279
+Epoch 16: training loss=0.8353322648888863, validation loss=2.9444332489967344
+Epoch 17: training loss=0.80909026528286, validation loss=2.8362091568946837
+Epoch 18: training loss=0.7994371908768492, validation loss=2.8662362789154052
+Early stop at epoch 18.
+>>> Distilling the cloud model to participant 2
+Epoch 1: training loss=1.823044100845608, validation loss=2.550530276298523
+Epoch 2: training loss=1.6082452918541954, validation loss=2.5327425992012023
+Epoch 3: training loss=1.486915700952587, validation loss=2.1032595230102538
+Epoch 4: training loss=1.406281994605051, validation loss=2.194769297409058
+Epoch 5: training loss=1.3369939590347668, validation loss=2.2841424492835998
+Epoch 6: training loss=1.2829650984347893, validation loss=1.9324453739643097
+Epoch 7: training loss=1.2299146830936327, validation loss=1.9260694749832152
+Epoch 8: training loss=1.1684981349324068, validation loss=2.067942462491989
+Epoch 9: training loss=1.1366800303958244, validation loss=1.9719533355236054
+Epoch 10: training loss=1.1203994469170038, validation loss=1.982212614107132
+Epoch 11: training loss=1.0797997222616564, validation loss=2.0426649594306947
+Epoch 12: training loss=1.0260612210801812, validation loss=1.956023722600937
+Early stop at epoch 12.
+>>> Distilling the cloud model to participant 3
+Epoch 1: training loss=1.586652625169115, validation loss=2.9096528707504272
+Epoch 2: training loss=1.4687393820315378, validation loss=2.9984299151420593
+Epoch 3: training loss=1.39642789295826, validation loss=3.1566976793289183
+Epoch 4: training loss=1.3398625343224546, validation loss=3.056645287895203
+Epoch 5: training loss=1.2917019480807017, validation loss=3.06278871383667
+Epoch 6: training loss=1.2353960691403514, validation loss=3.094261276626587
+Early stop at epoch 6.
+Cloud model accuracy: 0.8035714285714286
+Participant models accuracy: [0.3312, 0.3618, 0.3118]
+Cloud accuracy after KD: [0.0]
+Participant accuracy after KD: [0.4714, 0.3862, 0.2694]

@@ -1,3 +1,6 @@
+import os
+
+import torch
 import torchvision.transforms as transforms
 from data_utils import MappedCaltech101, dirichlet_split
 from pipeline import distill, test, train
@@ -29,6 +32,12 @@ cloud_dataset = MappedCaltech101(
     transform=transform,
     target_type="category",
 )
+labels_count = {}
+for _, label in cloud_dataset:
+    if label not in labels_count:
+        labels_count[label] = 0
+    labels_count[label] += 1
+print(labels_count)
 cloud_train_data, cloud_test_data = random_split(
     cloud_dataset,
     [int(len(cloud_dataset) * 0.8), len(cloud_dataset) - int(len(cloud_dataset) * 0.8)],
@@ -65,13 +74,6 @@ participant_val_data, participant_test_data = random_split(
     ],
 )
 
-count_sample = {}
-for _, y in cloud_train_data:
-    if y not in count_sample:
-        count_sample[y] = 0
-    count_sample[y] += 1
-print(count_sample)
-
 # Define participants' models and the cloud model
 num_participants = 3
 participant_train_datas = dirichlet_split(participant_train_data, num_participants)
@@ -87,6 +89,13 @@ participant_accs = []
 for i, (model, train_data) in enumerate(
     zip(participant_models, participant_train_datas)
 ):
+    if os.path.exists(f"./checkpoints/participant_{i+1}_cifar10.pth"):
+        model.load_state_dict(
+            torch.load(f"./checkpoints/participant_{i+1}_cifar10.pth")
+        )
+        acc = test(model, participant_test_data)
+        participant_accs.append(acc)
+        continue
     print(f">>> Training participant {i+1}")
     train(
         model,
@@ -99,34 +108,51 @@ for i, (model, train_data) in enumerate(
     acc = test(model, participant_test_data)
     participant_accs.append(acc)
 
-print(">>> Training the cloud model...")
-train(
-    cloud_model,
-    cloud_train_data,
-    cloud_val_data,
-    batch_size=32,
-    save_path="./checkpoints/cloud_caltech101.pth",
-)
-cloud_acc = test(cloud_model, cloud_test_data)
+if os.path.exists("./checkpoints/cloud_caltech101.pth"):
+    cloud_model.load_state_dict(torch.load("./checkpoints/cloud_caltech101.pth"))
+    cloud_acc = test(cloud_model, cloud_test_data)
+else:
+    print(">>> Training the cloud model...")
+    train(
+        cloud_model,
+        cloud_train_data,
+        cloud_val_data,
+        batch_size=32,
+        save_path="./checkpoints/cloud_caltech101.pth",
+    )
+    cloud_acc = test(cloud_model, cloud_test_data)
 
 # Mutual Distillation
 cloud_accs_kd = []
-for i, participant in enumerate(participant_models):
-    print(f">>> Distilling participant {i+1}")
-    distill(
-        participant,
-        cloud_model,
-        cloud_train_data,
-        batch_size=16,
-        lr=0.0001,
-        save_path=f"./checkpoints/cloud_kd.pth",
-    )
-    acc = test(participant, cloud_test_data)
+if os.path.exists("./checkpoints/cloud_kd.pth"):
+    cloud_model.load_state_dict(torch.load("./checkpoints/cloud_kd.pth"))
+    acc = test(cloud_model, cloud_test_data)
     cloud_accs_kd.append(acc)
+else:
+    for i, participant in enumerate(participant_models):
+        print(f">>> Distilling participant {i+1}")
+        distill(
+            participant,
+            cloud_model,
+            cloud_train_data,
+            cloud_val_data,
+            batch_size=16,
+            save_path=f"./checkpoints/cloud_kd.pth",
+        )
+        acc = test(cloud_model, cloud_test_data)
+        cloud_accs_kd.append(acc)
 
+participant_accs_kd = []
 for i, (model, train_data) in enumerate(
     zip(participant_models, participant_train_datas)
 ):
+    if os.path.exists(f"./checkpoints/participant_{i+1}_cifar10_kd.pth"):
+        model.load_state_dict(
+            torch.load(f"./checkpoints/participant_{i+1}_cifar10_kd.pth")
+        )
+        acc = test(model, participant_test_data)
+        participant_accs_kd.append(acc)
+        continue
     print(f">>> Distilling the cloud model to participant {i+1}")
     train(
         model,
@@ -136,4 +162,9 @@ for i, (model, train_data) in enumerate(
         save_path=f"./checkpoints/participant_{i+1}_cifar10_kd.pth",
     )
     acc = test(model, participant_test_data)
-    participant_accs.append(acc)
+    participant_accs_kd.append(acc)
+
+print(f"Cloud model accuracy: {cloud_acc}")
+print(f"Participant models accuracy: {participant_accs}")
+print(f"Cloud accuracy after KD: {cloud_accs_kd}")
+print(f"Participant accuracy after KD: {participant_accs_kd}")

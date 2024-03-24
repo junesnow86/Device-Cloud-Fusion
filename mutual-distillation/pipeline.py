@@ -117,7 +117,7 @@ def distill(
     student.train()
     transfer_dataloader = DataLoader(transfer_data, batch_size=batch_size, shuffle=True)
     val_dataloader = DataLoader(val_data, batch_size=batch_size, shuffle=True)
-    val_loss = nn.CrossEntropyLoss()
+    val_loss_fn = nn.CrossEntropyLoss()
     if optimizer is None:
         optimizer = optim.SGD(student.parameters(), lr=lr, momentum=0.9)
 
@@ -143,7 +143,7 @@ def distill(
                 inputs = inputs.to(device)
                 labels = labels.to(device)
                 student_outputs = student(inputs)
-                loss = val_loss(student_outputs, labels)
+                loss = val_loss_fn(student_outputs, labels)
                 val_loss += loss.item()
 
         print(
