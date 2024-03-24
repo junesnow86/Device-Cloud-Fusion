@@ -1,285 +1,139 @@
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.optim as optim
 import torchvision.transforms as transforms
-from data import ExtractedFeaturesDataset
-from models import Classifier, FeatureExtractor
-from torch.utils.data import DataLoader, Subset, random_split
-from torchvision.datasets import CIFAR10, CIFAR100
-from torchvision.models import mobilenet_v3_large, mobilenet_v3_small, resnet152
-from tqdm import tqdm
+from data_utils import MappedCaltech101, dirichlet_split
+from pipeline import distill, test, train
+from torch.utils.data import random_split
+from torchvision.datasets import CIFAR10, CIFAR100, Caltech101
+from torchvision.models import (
+    mobilenet_v3_small,
+    resnet18,
+    shufflenet_v2_x1_0,
+    squeezenet1_0,
+)
 
-
-def train(model, train_data, val_data, epochs=50, device="cuda", patience=3):
-    model.to(device)
-    model.train()
-    train_dataloader = DataLoader(train_data, batch_size=64, shuffle=True)
-    val_dataloader = DataLoader(val_data, batch_size=64, shuffle=False)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-
-    best_loss = float("inf")
-    for epoch in range(epochs):
-        running_loss = 0.0
-        for inputs, labels in tqdm(train_dataloader, desc="training"):
-            inputs = inputs.to(device)
-            labels = labels.to(device)
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            running_loss += loss.item()
-
-        # Validation
-        with torch.no_grad():
-            val_loss = 0.0
-            for inputs, labels in tqdm(val_dataloader, desc="validation"):
-                inputs = inputs.to(device)
-                labels = labels.to(device)
-                outputs = model(inputs)
-                loss = criterion(outputs, labels)
-                val_loss += loss.item()
-
-        print(
-            f"Epoch {epoch+1}: training loss={running_loss/len(train_dataloader)}, validation loss={val_loss/len(val_dataloader)}"
-        )
-        if val_loss < best_loss:
-            best_loss = val_loss
-            patience = 3
-        else:
-            patience -= 1
-            if patience == 0:
-                print(f"Early stop at epoch {epoch+1}.")
-                break
-
-
-def test(model, data, device="cuda"):
-    model.to(device)
-    model.eval()
-    dataloader = DataLoader(data, batch_size=64, shuffle=False)
-    correct, total = 0, 0
-
-    with torch.no_grad():
-        for inputs, labels in dataloader:
-            inputs = inputs.to(device)
-            labels = labels.to(device)
-            outputs = model(inputs)
-            _, predicted = torch.max(outputs, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-
-    return correct / total
-
-
-def distill(
-    teacher, student, train_data, finetune_data, epochs=5, device="cuda", patience=3
-):
-    """
-    train_data: the data used to teach the student model
-    finetune_data: the date used to fine-tune the student model
-    """
-
-    def loss_fn_kd(
-        outputs, teacher_outputs, labels=None, T=1, alpha=0.5, with_labels=False
-    ):
-        soft_loss = nn.KLDivLoss(reduction="batchmean")(
-            nn.functional.log_softmax(outputs / T, dim=1),
-            nn.functional.softmax(teacher_outputs / T, dim=1),
-        ) * (T * T)
-        if with_labels:
-            hard_loss = nn.CrossEntropyLoss()(outputs, labels) * (1.0 - alpha)
-            soft_loss = soft_loss * alpha + hard_loss
-        return soft_loss
-
-    teacher.to(device)
-    student.to(device)
-    teacher.eval()
-    student.train()
-    train_dataloader = DataLoader(train_data, batch_size=64, shuffle=True)
-    finetune_dataloader = DataLoader(finetune_data, batch_size=64, shuffle=True)
-    finetune_loss = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(student.parameters(), lr=0.001, momentum=0.9)
-
-    # best_loss = float('inf')
-    for epoch in range(epochs):
-        running_loss = 0.0
-        for inputs, labels in tqdm(train_dataloader, desc="distillation training"):
-            # use teacher logits as soft targets
-            inputs = inputs.to(device)
-            labels = labels.to(device)
-            teacher_outputs = teacher(inputs)
-            student_outputs = student(inputs)
-            loss = loss_fn_kd(student_outputs, teacher_outputs)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            running_loss += loss.item()
-
-        for inputs, labels in tqdm(
-            finetune_dataloader, desc="distillation fine-tuning"
-        ):
-            # use hard labels to avoid catastrophic forgetting
-            inputs = inputs.to(device)
-            labels = labels.to(device)
-            outputs = student(inputs)
-            loss = finetune_loss(outputs, labels)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-        # val_loss = 0.0
-        # with torch.no_grad():
-        #     for inputs, labels in tqdm(val_dataloader, desc="distillation validation"):
-        #         inputs = inputs.to(device)
-        #         labels = labels.to(device)
-        #         teacher_outputs = teacher(inputs)
-        #         student_outputs = student(inputs)
-        #         loss = loss_fn(student_outputs, teacher_outputs)
-        #         val_loss += loss.item()
-
-        print(f"Epoch {epoch+1}: training loss={running_loss/len(train_dataloader)}")
-        # if val_loss < best_loss:
-        #     best_loss = val_loss
-        #     patience = 3
-        # else:
-        #     patience -= 1
-        #     if patience == 0:
-        #         print(f"Early stop at epoch {epoch+1}.")
-        #         break
-
-
-# Load CIFAR-10 dataset
+# Load Caltech-101 dataset for cloud training
 transform = transforms.Compose(
-    [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-)
-train_data = CIFAR10(root="./data", train=True, download=True, transform=transform)
-test_data = CIFAR10(root="./data", train=False, download=True, transform=transform)
-
-# Split data into cloud part and parties part
-cloud_size = len(train_data) // 10
-participant_size = len(train_data) - cloud_size
-cloud_train, parties_train = random_split(train_data, [cloud_size, participant_size])
-
-# Generate random proportion for each class
-class_proportions = np.random.dirichlet(np.ones(10), size=1)[0]
-
-labels = [y for _, y in parties_train]
-party_A_indices, party_B_indices = [], []
-party_A_proportions, party_B_proportions = [], []
-for i in range(10):
-    class_indices = np.where(np.array(labels) == i)[0]
-    proportion = max(class_proportions[i], 1 - class_proportions[i])
-    split_index = int(proportion * len(class_indices))
-
-    if i < 5:  # For the first 5 classes, assign more to A
-        party_A_indices.extend(class_indices[:split_index])
-        party_B_indices.extend(class_indices[split_index:])
-        party_A_proportions.append(proportion)
-        party_B_proportions.append(1 - proportion)
-    else:  # For the last 5 classes, assign more to B
-        party_B_indices.extend(class_indices[:split_index])
-        party_A_indices.extend(class_indices[split_index:])
-        party_B_proportions.append(proportion)
-        party_A_proportions.append(1 - proportion)
-print(f"Party A proportions: {party_A_proportions}")
-print(f"Party B proportions: {party_B_proportions}")
-exit()
-party_A_train = Subset(parties_train, party_A_indices)
-party_B_train = Subset(parties_train, party_B_indices)
-
-# Split validation data
-cloud_train_size = len(cloud_train) * 8 // 10
-cloud_val_size = len(cloud_train) - cloud_train_size
-cloud_train, cloud_val = random_split(cloud_train, [cloud_train_size, cloud_val_size])
-
-party_A_train_size = len(party_A_train) * 8 // 10
-party_A_val_size = len(party_A_train) - party_A_train_size
-party_A_train, party_A_val = random_split(
-    party_A_train, [party_A_train_size, party_A_val_size]
+    [
+        transforms.Resize((256, 256)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomCrop((224, 224)),
+        transforms.Grayscale(num_output_channels=3),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ]
 )
 
-party_B_train_size = len(party_B_train) * 8 // 10
-party_B_val_size = len(party_B_train) - party_B_train_size
-party_B_train, party_B_val = random_split(
-    party_B_train, [party_B_train_size, party_B_val_size]
+cloud_dataset = MappedCaltech101(
+    offset=10,
+    root="./data",
+    download=False,
+    transform=transform,
+    target_type="category",
+)
+cloud_train_data, cloud_test_data = random_split(
+    cloud_dataset,
+    [int(len(cloud_dataset) * 0.8), len(cloud_dataset) - int(len(cloud_dataset) * 0.8)],
+)
+cloud_train_data, cloud_val_data = random_split(
+    cloud_train_data,
+    [
+        int(len(cloud_train_data) * 0.8),
+        len(cloud_train_data) - int(len(cloud_train_data) * 0.8),
+    ],
 )
 
+# Load CIFAR-100 dataset for participants training
+transform = transforms.Compose(
+    [
+        # transforms.RandomHorizontalFlip(),
+        # transforms.RandomCrop(32, padding=4),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+    ]
+)
 
-# Define models
-cloud_fe = FeatureExtractor()
-cloud_clf = Classifier(256, 100)
-cloud_backbone = resnet152(weights=None, num_classes=256)
-cloud_model = nn.Sequential(cloud_fe, cloud_backbone, cloud_clf)
+participant_train_data = CIFAR10(
+    root="./data", download=False, transform=transform, train=True
+)
+participant_test_data = CIFAR10(
+    root="./data", download=False, transform=transform, train=False
+)
+participant_val_data, participant_test_data = random_split(
+    participant_test_data,
+    [
+        int(len(participant_test_data) * 0.5),
+        len(participant_test_data) - int(len(participant_test_data) * 0.5),
+    ],
+)
 
-party_A_fe = FeatureExtractor()
-party_A_clf = Classifier(256, 100)
-party_A_backbone = mobilenet_v3_small(weights=None, num_classes=256)
-party_A_model = nn.Sequential(party_A_fe, party_A_backbone, party_A_clf)
+count_sample = {}
+for _, y in cloud_train_data:
+    if y not in count_sample:
+        count_sample[y] = 0
+    count_sample[y] += 1
+print(count_sample)
 
-party_B_fe = FeatureExtractor()
-party_B_clf = Classifier(256, 100)
-party_B_backbone = mobilenet_v3_large(weights=None, num_classes=256)
-party_B_model = nn.Sequential(party_B_fe, party_B_backbone, party_B_clf)
+# Define participants' models and the cloud model
+num_participants = 3
+participant_train_datas = dirichlet_split(participant_train_data, num_participants)
+participant_models = []
+participant_models.append(squeezenet1_0(weights=None, num_classes=111))
+participant_models.append(shufflenet_v2_x1_0(weights=None, num_classes=111))
+participant_models.append(mobilenet_v3_small(weights=None, num_classes=111))
 
-cloud_model = resnet152(weights=None, num_classes=10)
-party_A_model = mobilenet_v3_small(weights=None, num_classes=10)
-party_B_model = mobilenet_v3_large(weights=None, num_classes=10)
+cloud_model = resnet18(weights=None, num_classes=111)
 
-# Train models respectively with the splitted dataset
-print(">>> Start training cloud model...")
-train(cloud_model, cloud_train, cloud_val)
-cloud_acc = test(cloud_model, test_data)
+# Train models
+participant_accs = []
+for i, (model, train_data) in enumerate(
+    zip(participant_models, participant_train_datas)
+):
+    print(f">>> Training participant {i+1}")
+    train(
+        model,
+        train_data,
+        participant_val_data,
+        batch_size=64,
+        lr=0.0001,
+        save_path=f"./checkpoints/participant_{i+1}_cifar10.pth",
+    )
+    acc = test(model, participant_test_data)
+    participant_accs.append(acc)
 
-print(">>> Start training party A model...")
-train(party_A_model, party_A_train, party_A_val)
-party_A_acc = test(party_A_model, test_data)
+print(">>> Training the cloud model...")
+train(
+    cloud_model,
+    cloud_train_data,
+    cloud_val_data,
+    batch_size=32,
+    save_path="./checkpoints/cloud_caltech101.pth",
+)
+cloud_acc = test(cloud_model, cloud_test_data)
 
-print(">>> Start training party B model...")
-train(party_B_model, party_B_train, party_B_val)
-party_B_acc = test(party_B_model, test_data)
+# Mutual Distillation
+cloud_accs_kd = []
+for i, participant in enumerate(participant_models):
+    print(f">>> Distilling participant {i+1}")
+    distill(
+        participant,
+        cloud_model,
+        cloud_train_data,
+        batch_size=16,
+        lr=0.0001,
+        save_path=f"./checkpoints/cloud_kd.pth",
+    )
+    acc = test(participant, cloud_test_data)
+    cloud_accs_kd.append(acc)
 
-# Perform knowledge distillation from parties to the cloud
-print(">>> Start distillation from party A to cloud...")
-distill(party_A_model, cloud_model, party_A_train, cloud_train)
-cloud_acc_kd1 = test(cloud_model, test_data)
-
-# print(">>> Start fine-tuning cloud model...")
-# train(cloud_model, cloud_data, epochs=10)  # fine-tuning
-# cloud_acc_finetune1 = test(cloud_model, test_dataset)
-
-print(">>> Start distillation from party B to cloud...")
-# distill(nn.Sequential(feature_extractor, party_B_backbone), nn.Sequential(feature_extractor, cloud_backbone), party_B_train, party_B_val, loss_fn_kd)
-# distil_train_data_B = ExtractedFeaturesDataset(partyB_train, party_B_fe)
-# distil_val_data_B = ExtractedFeaturesDataset(partyB_val, party_B_fe)
-# distill(party_B_model, cloud_model, distil_train_data_B, distil_cloud_data)
-distill(party_B_model, cloud_model, party_B_train, cloud_train)
-cloud_acc_kd2 = test(cloud_model, test_data)
-
-# print(">>> Start fine-tuning cloud model...")
-# train(cloud_model, cloud_data, epochs=10)  # fine-tuning
-# cloud_acc_finetune2 = test(cloud_model, test_dataset)
-
-# Perform KD from cloud backbone to parties
-print(">>> Start distillation from cloud to party A...")
-# distill(cloud_backbone, party_A_backbone, distil_cloud_data, distil_train_data_A)
-distill(cloud_model, party_A_model, cloud_train, party_A_train)
-party_A_acc_kd = test(party_A_model, test_data)
-
-print(">>> Start distillation from cloud to party B...")
-# distill(cloud_backbone, party_B_backbone, distil_cloud_data, distil_train_data_B)
-distill(cloud_model, party_B_model, cloud_train, party_B_train)
-party_B_acc_kd = test(party_B_model, test_data)
-
-# Print results
-print(f"Cloud model accuracy: {cloud_acc:.4f}")
-print(f"Party A model accuracy: {party_A_acc:.4f}")
-print(f"Party B model accuracy: {party_B_acc:.4f}")
-print(f"Cloud model accuracy after distillation from party A: {cloud_acc_kd1:.4f}")
-print(f"Cloud model accuracy after distillation from party B: {cloud_acc_kd2:.4f}")
-print(f"Party A accuracy after distillation from cloud: {party_A_acc_kd:.4f}")
-print(f"Party B accuracy after distillation from cloud: {party_B_acc_kd:.4f}")
-
-# TODO:
-# - 共享特征提取器和分类器层，但是需要处理non-iid所导致的参数加权平均效果不理想的问题
+for i, (model, train_data) in enumerate(
+    zip(participant_models, participant_train_datas)
+):
+    print(f">>> Distilling the cloud model to participant {i+1}")
+    train(
+        model,
+        train_data,
+        participant_val_data,
+        batch_size=16,
+        save_path=f"./checkpoints/participant_{i+1}_cifar10_kd.pth",
+    )
+    acc = test(model, participant_test_data)
+    participant_accs.append(acc)
