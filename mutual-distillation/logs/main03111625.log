@@ -204,3 +204,6 @@ Cloud model accuracy after distillation from party A: 0.1779
 Cloud model accuracy after fine-tuning: 0.1727
 Cloud model accuracy after distillation from party B: 0.2901
 Cloud model accuracy after fine-tuning: 0.1725
+
+Comments:
+尝试了在 设备->云 蒸馏后，对云模型使用云数据进行微调，简单的微调导致灾难性遗忘。

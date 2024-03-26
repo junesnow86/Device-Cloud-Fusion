@@ -95,3 +95,6 @@ Epoch 48: training loss=0.6996483015774311, validation loss=1.4061366644772617
 Epoch 49: training loss=0.660025442468709, validation loss=1.4142732877622952
 Epoch 50: training loss=0.6536531765228031, validation loss=1.3690861531279304
 Test accuracy: 0.668778801843318
+
+Comments:
+实现non-iid数据划分。

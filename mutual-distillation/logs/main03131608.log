@@ -69,3 +69,6 @@ Party A model accuracy: 0.1904
 Party B model accuracy: 0.3152
 Cloud model accuracy after distillation from party A: 0.1168
 Cloud model accuracy after distillation from party B: 0.0998
+
+Comments:
+将浅层特征提取层和最后的分类器层分离出来后，导致蒸馏性能下降了。
