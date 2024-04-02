@@ -1,7 +1,8 @@
 import numpy as np
 import torch
-from torch.utils.data import Dataset, Subset
-from torchvision.datasets import Caltech101
+import torchvision.transforms as transforms
+from torch.utils.data import Dataset, Subset, random_split
+from torchvision.datasets import Caltech101, Food101
 
 
 class ExtractedFeaturesDataset(Dataset):
@@ -37,6 +38,76 @@ class MappedCaltech101(Caltech101):
     def __getitem__(self, index):
         data, target = super().__getitem__(index)
         return data, target + self.offset
+
+
+def load_Caltech101(
+    root="./data", download=True, transform=None, train_ratio=0.8, *args, **kwargs
+):
+    """Including:
+    - transformations
+    - train, validation, and test splits
+    """
+    if transform is None:
+        transform = transforms.Compose(
+            [
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.Grayscale(num_output_channels=3),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            ]
+        )
+
+    dataset = Caltech101(
+        root=root, download=download, transform=transform, target_type="category"
+    )
+
+    original_dataset_length = len(dataset)
+
+    train_data, test_data = random_split(
+        dataset,
+        [
+            int(original_dataset_length * train_ratio),
+            original_dataset_length - int(original_dataset_length * train_ratio),
+        ],
+    )
+
+    return train_data, test_data
+
+
+def load_Food101(
+    root="./data", download=True, transform=None, val_ratio=0.8, *args, **kwargs
+):
+    """Including:
+    - transformations
+    - train, validation, and test splits
+    - val_ratio: the ratio of the validation set splitted from the training set
+    """
+    if transform is None:
+        transform = transforms.Compose(
+            [
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                # transforms.Grayscale(num_output_channels=3),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            ]
+        )
+
+    train_data = Food101(
+        root=root,
+        download=download,
+        transform=transform,
+        split="train",
+        *args,
+        **kwargs
+    )
+
+    test_data = Food101(
+        root=root, download=download, transform=transform, split="test", *args, **kwargs
+    )
+
+    return train_data, test_data
 
 
 def dirichlet_split(dataset, num_participants, num_classes=None):

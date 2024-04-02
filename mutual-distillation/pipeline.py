@@ -71,7 +71,7 @@ def test(model, data, batch_size=32, device="cuda"):
     correct, total = 0, 0
 
     with torch.no_grad():
-        for inputs, labels in dataloader:
+        for inputs, labels in tqdm(dataloader, desc="testing"):
             inputs = inputs.to(device)
             labels = labels.to(device)
             outputs = model(inputs)
@@ -99,21 +99,22 @@ def distill(
     train_data: the data used to teach the student model
     """
 
-    def loss_fn_kd(
-        outputs, teacher_outputs, labels=None, T=20, alpha=0.2, with_labels=False
-    ):
+    def loss_fn_kd(student_outputs, teacher_outputs, labels=None, T=1, alpha=0.2):
         soft_loss = nn.KLDivLoss(reduction="batchmean")(
-            nn.functional.log_softmax(outputs / T, dim=1),
+            nn.functional.log_softmax(student_outputs / T, dim=1),
             nn.functional.softmax(teacher_outputs / T, dim=1),
         ) * (T * T)
-        if with_labels:
-            hard_loss = nn.CrossEntropyLoss()(outputs, labels) * (1.0 - alpha)
-            soft_loss = soft_loss * alpha + hard_loss
+        if labels is not None:
+            hard_loss = nn.CrossEntropyLoss()(student_outputs, labels)
+            soft_loss = soft_loss * alpha + hard_loss * (1 - alpha)
         return soft_loss
 
     teacher.to(device)
     student.to(device)
     teacher.eval()
+    # Freeze teacher's parameters
+    for param in teacher.parameters():
+        param.requires_grad = False
     student.train()
     transfer_dataloader = DataLoader(transfer_data, batch_size=batch_size, shuffle=True)
     val_dataloader = DataLoader(val_data, batch_size=batch_size, shuffle=True)
@@ -129,7 +130,8 @@ def distill(
             # use teacher logits as soft targets
             inputs = inputs.to(device)
             labels = labels.to(device)
-            teacher_outputs = teacher(inputs)
+            with torch.no_grad():
+                teacher_outputs = teacher(inputs)
             student_outputs = student(inputs)
             loss = loss_fn_kd(student_outputs, teacher_outputs, labels)
             optimizer.zero_grad()
