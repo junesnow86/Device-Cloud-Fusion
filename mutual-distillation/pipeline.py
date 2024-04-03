@@ -112,9 +112,6 @@ def distill(
     teacher.to(device)
     student.to(device)
     teacher.eval()
-    # Freeze teacher's parameters
-    for param in teacher.parameters():
-        param.requires_grad = False
     student.train()
     transfer_dataloader = DataLoader(transfer_data, batch_size=batch_size, shuffle=True)
     val_dataloader = DataLoader(val_data, batch_size=batch_size, shuffle=True)

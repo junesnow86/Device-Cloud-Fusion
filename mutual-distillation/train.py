@@ -93,7 +93,7 @@ for i, (model, train_data, val_data) in enumerate(
         train_data,
         val_data,
         batch_size=64,
-        lr=0.0001,
+        lr=0.0005,
         save_path=f"./checkpoints/participant_{i+1}_caltech101.pth",
     )
     acc = test(model, participant_test_data)
@@ -108,7 +108,7 @@ train(
     cloud_train_data,
     cloud_val_data,
     batch_size=64,
-    lr=0.001,
+    lr=0.0005,
     save_path="./checkpoints/cloud_food101.pth",
 )
 cloud_acc = test(cloud_model, cloud_test_data)
