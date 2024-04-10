@@ -1,0 +1,4 @@
+Test accuracy of ResNet18: 0.7949                                                                                                                                                                                            
+Test accuracy of MobileNetV3-Small: 0.7144
+Test accuracy of SqueezeNet1.0: 0.7243
+Test accuracy of ShuffleNetV2_x1_0: 0.7147

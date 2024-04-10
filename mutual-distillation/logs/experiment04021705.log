@@ -1,0 +1,39 @@
+# Experiment Information
+cloud dataset: Caltech-101
+participant dataset: Food-101
+participant number: 3
+participant data split: Dirichlet
+cloud model: ResNet-18
+participant models: SqueezeNet, ShuffleNet, MobileNetV3
+>>> Training participant 1
+Epoch 1: training loss=4.58931272080604, validation loss=4.642519877352206
+Epoch 2: training loss=4.496443581073843, validation loss=4.733973687906074
+Epoch 3: training loss=4.444046294435542, validation loss=4.786489553663018
+Epoch 4: training loss=4.431824227596851, validation loss=4.798915419936054
+Epoch 5: training loss=4.414572101958255, validation loss=4.799322472706264
+Epoch 6: training loss=4.401410006462259, validation loss=4.822594997623528
+Early stop at epoch 6.
+>>> Training participant 2
+Epoch 1: training loss=4.605386515458425, validation loss=4.639985260767066
+Epoch 2: training loss=4.536824848916796, validation loss=4.645203178510495
+Epoch 3: training loss=4.4822434650527105, validation loss=4.6564298355843725
+Epoch 4: training loss=4.440481536918217, validation loss=4.670338202680933
+Epoch 5: training loss=4.407452940940857, validation loss=4.686780591197351
+Epoch 6: training loss=4.38200095627043, validation loss=4.703113498506475
+Early stop at epoch 6.
+>>> Training participant 3
+Epoch 1: training loss=4.614635520511204, validation loss=4.614765645080534
+Epoch 2: training loss=4.6137440999348955, validation loss=4.614664085311648
+Epoch 3: training loss=4.613342775238885, validation loss=4.61457980749096
+Epoch 4: training loss=4.612581458356646, validation loss=4.614503228047582
+Epoch 5: training loss=4.6117480927043495, validation loss=4.614394583193528
+
+Comments:
+三个参与方在本地训练过程中的验证集损失都没有在下降，可能的原因：
+1. 参与方使用的数据集是Food-101，实验中验证集是从执行dirichlet前的训练集划分的，类别均匀，对于参与方上数据是non-IID分布的，验证效果自然不好。
+
+而且，Food-101的样本相对较多，参与方训练时间需要更长。
+
+Next:
+1. 交换云和参与方数据集；
+2. 进行dirichlet分布划分后再划分训练集和验证集。
