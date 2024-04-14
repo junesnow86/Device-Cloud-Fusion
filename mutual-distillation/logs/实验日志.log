@@ -14,3 +14,37 @@
 
 而经过实验验证，在ResNet-18黑盒的基础上，外接一层线性层分类器，前后性能表现相差无几（0.8005 v.s. 0.7909）。
 因此，可以考虑添加外置的dataset-specific classifier来尝试解决上述问题。
+
+custom cloud resnet18 pretrained: 0.8025
+custom distill mobilenet pretrained: 0.7225
+custom distill shufflenet pretrained: 0.7234
+custom distill squeeze pretrained: 0.7031
+
+2024.4.14
+pretrained custom mobilenet test on FashionMNIST: 0.1112
+fine-tuned custom mobilenet test on FashionMNIST: 0.7809
+
+pretrained custom shufflenet test on FashionMNIST: 0.1004
+fine-tuned custom shufflenet test on FashionMNIST: 0.8526
+
+pretrained custom squeezenet test on FashionMNIST: 0.1110
+fine-tuned custom squeezenet test on FashionMNIST: 0.8672
+
+---------------------------------------------------------
+使用fine-tuned backbone + pretrained classifier在CIFAR-10上进行测试，准确率只有0.1，也就是说保留pretrained classifier没有作用。
+微调后的backbone起决定性作用，会导致小模型遗忘预训练数据集的特征提取能力。
+---------------------------------------------------------
+验证ensemble的提升效果：
+pretrained
+Model 0 accuracy: 0.7292                                                                                                                                                                                                                                
+Model 1 accuracy: 0.7289
+Model 2 accuracy: 0.7276
+Ensemble accuracy: 0.7855
+Ensemble vote accuracy: 0.7620
+
+fine-tuned
+Model 0 fine-tune accuracy: 0.8048                                                                                                                                                                                                                      
+Model 1 fine-tune accuracy: 0.8608
+Model 2 fine-tune accuracy: 0.8704
+Ensemble fine-tune accuracy: 0.8875
+Ensemble vote fine-tune accuracy: 0.8829

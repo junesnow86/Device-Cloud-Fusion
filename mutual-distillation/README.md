@@ -1,10 +1,10 @@
 ## Implementation Steps
-- [x] train a ResNet-18 on CIFAR-10
+- [x] train a custom ResNet-18 on CIFAR-10
 - [x] split FashionMNIST into 3 random parts
-- [x] distill 3 small models with ResNet-18 on CIFAR-10
+- [x] distill 3 small models with custom ResNet-18 on CIFAR-10
 - [x] fine-tune 3 small models on local FashionMNIST sub-dataset
-- [ ] add common classifier layer, one classifer for each dataset(to prove that small models learn useful knowledge from local datasets)
-- [ ] compare performance of fine-tuned small models' ensemble and separate small models
+- [x] add common classifier layer, one classifer for each dataset(to prove that small models learn useful knowledge from local datasets)
+- [x] compare performance of fine-tuned small models' ensemble and separate small models
 - [ ] distill small models to ResNet-18 with model ensemble
 - [ ] distill ResNet-18 to small models
 
