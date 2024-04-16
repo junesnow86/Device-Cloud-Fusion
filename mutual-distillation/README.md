@@ -4,8 +4,8 @@
 - [x] train a custom ResNet-18 on 10% CIFAR-10
 - [x] distill 3 small models with custom ResNet-18 on 10% CIFAR-10
 - [x] fine-tune 3 small models on local sub-datasets (90% CIFAR-10 in total)
-- [x] distill small models to ResNet-18 with model ensemble
-- [ ] distill ResNet-18 to small models
+- [x] distill small models' ensemble to ResNet-18
+- [ ] distill ResNet-18 to small models and check ensemble again
 
 ## Q & A
 
