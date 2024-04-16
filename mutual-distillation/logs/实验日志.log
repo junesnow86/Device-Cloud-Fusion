@@ -33,6 +33,8 @@ fine-tuned custom squeezenet test on FashionMNIST: 0.8672
 ---------------------------------------------------------
 使用fine-tuned backbone + pretrained classifier在CIFAR-10上进行测试，准确率只有0.1，也就是说保留pretrained classifier没有作用。
 微调后的backbone起决定性作用，会导致小模型遗忘预训练数据集的特征提取能力。
+我认为这种情况下，使用小模型蒸馏，对大模型增益不会有积极作用。
+但是当初为什么这样做呢？是因为看到了一篇arbitrary transfer set的论文，受到了其影响。
 ---------------------------------------------------------
 验证ensemble的提升效果：
 pretrained
@@ -48,3 +50,14 @@ Model 1 fine-tune accuracy: 0.8608
 Model 2 fine-tune accuracy: 0.8704
 Ensemble fine-tune accuracy: 0.8875
 Ensemble vote fine-tune accuracy: 0.8829
+
+2024.4.15
+Cloud model accuracy: 0.4411                                                                                                                                                                                             
+Device model 0 accuracy: 0.4904
+Device model 1 accuracy: 0.5397
+Device model 2 accuracy: 0.5258
+Device ensemble accuracy: 0.5857
+Cloud model accuracy after distillation: 0.4991
+ensemble -> cloud 蒸馏后的云端模型是有了性能提升，但是并没有超越任何一个device小模型，更不用说超越ensemble了。
+这样的话就会使得second KD没有意义。
+而盲目地堆叠数据增强操作甚至会令蒸馏后的性能低于原始模型。

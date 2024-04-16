@@ -5,6 +5,21 @@ from torch.utils.data import Dataset, Subset, random_split
 from torchvision.datasets import CIFAR10, Caltech101, FashionMNIST, Food101
 
 
+class SubsetBasedDataset(Dataset):
+    def __init__(self, subset, transform=None):
+        self.subset = subset
+        self.transform = transform
+
+    def __getitem__(self, index):
+        data, target = self.subset[index]
+        if self.transform is not None:
+            data = self.transform(data)
+        return data, target
+
+    def __len__(self):
+        return len(self.subset)
+
+
 class ExtractedFeaturesDataset(Dataset):
     def __init__(self, original_dataset, feature_extractor, device="cuda"):
         super().__init__()

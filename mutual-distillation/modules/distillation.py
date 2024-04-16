@@ -60,9 +60,30 @@ def distill(
             with torch.no_grad():
                 teacher_outputs = teacher(inputs)
             student_outputs = student(inputs)
+
+            # calculate loss conditionally
+            # _, teacher_preds = torch.max(teacher_outputs, 1)
+            # loss = 0.0
+            # for i in range(inputs.size(0)):
+            #     hard_loss = hard_loss_fn(
+            #         student_outputs[i].unsqueeze(0), labels[i].unsqueeze(0)
+            #     )
+            #     # If the teacher's prediction is correct, use soft loss
+            #     if teacher_preds[i] == labels[i]:
+            #         soft_loss = soft_loss_fn(
+            #             student_outputs[i].unsqueeze(0),
+            #             teacher_outputs[i].unsqueeze(0),
+            #             T=temperature,
+            #         )
+            #         loss += (1 - alpha) * soft_loss + alpha * hard_loss
+            #     else:
+            #         loss += hard_loss
+            # loss /= inputs.size(0)
+
             soft_loss = soft_loss_fn(student_outputs, teacher_outputs, T=temperature)
             hard_loss = hard_loss_fn(student_outputs, labels)
             loss = (1 - alpha) * soft_loss + alpha * hard_loss
+
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()

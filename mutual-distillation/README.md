@@ -1,21 +1,24 @@
 ## Implementation Steps
-- [x] train a custom ResNet-18 on CIFAR-10
-- [x] split FashionMNIST into 3 random parts
-- [x] distill 3 small models with custom ResNet-18 on CIFAR-10
-- [x] fine-tune 3 small models on local FashionMNIST sub-dataset
-- [x] add common classifier layer, one classifer for each dataset(to prove that small models learn useful knowledge from local datasets)
+- [x] add common classifier layer, one classifer for each dataset(tryiny to prove that small models learn useful knowledge from local datasets, but it doesn't help)
 - [x] compare performance of fine-tuned small models' ensemble and separate small models
-- [ ] distill small models to ResNet-18 with model ensemble
+- [x] train a custom ResNet-18 on 10% CIFAR-10
+- [x] distill 3 small models with custom ResNet-18 on 10% CIFAR-10
+- [x] fine-tune 3 small models on local sub-datasets (90% CIFAR-10 in total)
+- [x] distill small models to ResNet-18 with model ensemble
 - [ ] distill ResNet-18 to small models
 
 ## Q & A
 
-Q1. 端设备的数据集具体该如何划分？
+### Q1. 端设备的数据集具体该如何划分？
 
-A1. 1）共用一个测试集，还是不同参与方分到不同的测试集？共用一个测试集，可以表现模型在用户数据全集上的整体性能，个性化评测可以使用验证集。2）先将整个数据集划分成训练集和测试集，然后将训练集划分成三个部分，分配给每个参与方，然后再在每个参与方训练集上划分出训练集和验证集。
+1）共用一个测试集，还是不同参与方分到不同的测试集？共用一个测试集，可以表现模型在用户数据全集上的整体性能，个性化评测可以使用验证集。2）先将整个数据集划分成训练集和测试集，然后将训练集划分成三个部分，分配给每个参与方，然后再在每个参与方训练集上划分出训练集和验证集。
 
-Q2. 为什么换用CIFAR-10和FashionMNIST？
+### Q2. 为什么换用CIFAR-10和FashionMNIST？
 
-A2. Food-101数据量很大，训练一次需要很长时间，换用更小更容易训练的数据集来尽快完成预实验。
+Food-101数据量很大，训练一次需要很长时间，换用更小更容易训练的数据集来尽快完成预实验。
 
-Q3. baseline怎么确定？
+### Q3. 为什么又换用从CIFAR-10里抽出10%作为云端数据集？
+
+因为如果云端和设备端使用两种分布差异很大的数据集，那么即使使用classifier微调，也还是会让设备端小模型在尝试蒸馏回云端大模型时的效果极差（0.1的准确率，等于瞎猜）。
+
+### Q4. baseline怎么确定？

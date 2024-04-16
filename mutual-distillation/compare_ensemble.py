@@ -1,12 +1,13 @@
 import pickle
 
 import torch
+import torchvision.transforms.v2 as v2
+from torchvision.datasets import CIFAR10
 from torchvision.models import mobilenet_v3_small, shufflenet_v2_x1_0, squeezenet1_0
 
 from modules.data_utils import load_CIFAR10
-from modules.ensemble import Ensemble
 from modules.evaluation import test_accuracy, test_accuracy_with_preds
-from modules.models import ImageClassificationModel
+from modules.models import Ensemble, ImageClassificationModel
 
 # model0 = ImageClassificationModel(
 #     mobilenet_v3_small(weights=None, num_classes=256), 256, num_classes=10
@@ -44,31 +45,43 @@ from modules.models import ImageClassificationModel
 # print(f"Ensemble accuracy: {ensemble_accuracy:.4f}")
 # print(f"Ensemble vote accuracy: {ensemble_vote_accuracy:.4f}")
 
-with open(
-    "checkpoints/data/participant_fashionmnist_test_data.pkl",
-    "rb",
-) as f:
-    test_data = pickle.load(f)
+# with open(
+#     "checkpoints/data/participant_fashionmnist_test_data.pkl",
+#     "rb",
+# ) as f:
+#     test_data = pickle.load(f)
+
+transform = v2.Compose(
+    [
+        # v2.RandomHorizontalFlip(),
+        # v2.RandomVerticalFlip(),
+        v2.ToImage(),
+        v2.ToDtype(torch.float32, scale=True),
+        v2.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+    ]
+)
+
+test_data = CIFAR10(root="./data", train=False, transform=transform)
 
 model0_fine_tune = ImageClassificationModel(
     mobilenet_v3_small(weights=None, num_classes=256), 256, num_classes=10
 )
 model0_fine_tune.load_state_dict(
-    torch.load("./checkpoints/custom_mobilenet_v3_small_fashionmnist_fine_tune.pth")
+    torch.load("./checkpoints/device_mobilenet_cifar10_0.3_finetuned.pth")
 )
 
 model1_fine_tune = ImageClassificationModel(
     shufflenet_v2_x1_0(weights=None, num_classes=256), 256, num_classes=10
 )
 model1_fine_tune.load_state_dict(
-    torch.load("./checkpoints/custom_shufflenet_v2_x1_0_fashionmnist_fine_tune.pth")
+    torch.load("./checkpoints/device_shufflenet_cifar10_0.3_finetuned.pth")
 )
 
 model2_fine_tune = ImageClassificationModel(
     squeezenet1_0(weights=None, num_classes=256), 256, num_classes=10
 )
 model2_fine_tune.load_state_dict(
-    torch.load("./checkpoints/custom_squeezenet1_0_fashionmnist_fine_tune.pth")
+    torch.load("./checkpoints/device_squeezenet_cifar10_0.3_finetuned.pth")
 )
 
 ensemble_fine_tune = Ensemble([model0_fine_tune, model1_fine_tune, model2_fine_tune])
