@@ -4,7 +4,7 @@ import torch
 import torchvision.transforms.v2 as v2
 from torch.utils.data import random_split
 from torchvision.datasets import CIFAR10
-from torchvision.models import ShuffleNet_V2_X1_0_Weights, resnet18, shufflenet_v2_x1_0
+from torchvision.models import SqueezeNet1_0_Weights, resnet18, squeezenet1_0
 
 from modules.data_utils import SubsetBasedDataset
 from modules.distillation import distill
@@ -17,22 +17,17 @@ cloud_model = ImageClassificationModel(
     cloud_backbone, backbone_out_features, num_classes=10
 )
 cloud_model.load_state_dict(
-    torch.load("checkpoints/pretrained/cloud_resnet18_cifar10_0.1_pretrained.pth")
+    torch.load("checkpoints/cloud_resnet18_cifar10_0.4_pretrained.pth")
 )
 
-device_backbone = shufflenet_v2_x1_0(
-    weights=ShuffleNet_V2_X1_0_Weights.DEFAULT, num_classes=backbone_out_features
-)
-device_model = ImageClassificationModel(
-    device_backbone, backbone_out_features, num_classes=10
-)
+device_backbone = squeezenet1_0(weights=None, num_classes=256)
+device_model = ImageClassificationModel(device_backbone, 256, num_classes=10)
 
 
 train_transform = v2.Compose(
     [
         v2.RandomHorizontalFlip(),
-        v2.RandomVerticalFlip(),
-        v2.ColorJitter(),
+        v2.RandomCrop(32, padding=4),
         v2.ToImage(),
         v2.ToDtype(torch.float32, scale=True),
         v2.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
@@ -41,18 +36,16 @@ train_transform = v2.Compose(
 
 test_transform = v2.Compose(
     [
-        # v2.RandomHorizontalFlip(),
-        # v2.RandomVerticalFlip(),
         v2.ToImage(),
         v2.ToDtype(torch.float32, scale=True),
         v2.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
     ]
 )
 
-with open("checkpoints/data/cloud_subset_cifar10_0.1.pkl", "rb") as f:
+with open("data/cloud_subset_cifar10_0.4.pkl", "rb") as f:
     train_data = pickle.load(f)
 
-train_ratio = 0.8
+train_ratio = 0.9
 train_size = int(train_ratio * len(train_data))
 val_size = len(train_data) - train_size
 train_data, val_data = random_split(train_data, [train_size, val_size])
@@ -70,7 +63,7 @@ distill(
     val_data,
     batch_size=128,
     lr=0.01,
-    checkpoint_save_path="./checkpoints/pretrained/device_shufflenet_cifar10_0.1_distilled.pth",
+    checkpoint_save_path="./checkpoints/device_squeezenet_cifar10_0.4_distilled.pth",
 )
 
 accuracy = test_accuracy(device_model, test_data)

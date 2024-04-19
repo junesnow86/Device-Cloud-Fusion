@@ -20,8 +20,7 @@ from modules.models import Ensemble, ImageClassificationModel
 train_transform = v2.Compose(
     [
         v2.RandomHorizontalFlip(),
-        v2.RandomVerticalFlip(),
-        v2.ColorJitter(),
+        v2.RandomCrop(32, padding=4),
         v2.ToImage(),
         v2.ToDtype(torch.float32, scale=True),
         v2.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
@@ -36,10 +35,10 @@ test_transform = v2.Compose(
     ]
 )
 
-with open("checkpoints/data/cloud_subset_cifar10_0.1.pkl", "rb") as f:
+with open("data/cloud_subset_cifar10_0.4.pkl", "rb") as f:
     train_data = pickle.load(f)
 
-train_ratio = 0.8
+train_ratio = 0.9
 train_size = int(train_ratio * len(train_data))
 val_size = len(train_data) - train_size
 train_data, val_data = random_split(train_data, [train_size, val_size])
@@ -57,7 +56,7 @@ cloud_model = ImageClassificationModel(
     num_classes=10,
 )
 cloud_model.load_state_dict(
-    torch.load("./checkpoints/pretrained/cloud_resnet18_cifar10_0.1_pretrained.pth")
+    torch.load("./checkpoints/cloud_resnet18_cifar10_0.4_pretrained.pth")
 )
 
 device_model0 = ImageClassificationModel(
@@ -66,7 +65,7 @@ device_model0 = ImageClassificationModel(
     num_classes=10,
 )
 device_model0.load_state_dict(
-    torch.load("./checkpoints/pretrained/device_mobilenet_cifar10_0.3_finetuned.pth")
+    torch.load("./checkpoints/device_mobilenet_cifar10_0.2_finetuned.pth")
 )
 
 device_model1 = ImageClassificationModel(
@@ -75,7 +74,7 @@ device_model1 = ImageClassificationModel(
     num_classes=10,
 )
 device_model1.load_state_dict(
-    torch.load("./checkpoints/pretrained/device_shufflenet_cifar10_0.3_finetuned.pth")
+    torch.load("./checkpoints/device_shufflenet_cifar10_0.2_finetuned.pth")
 )
 
 device_model2 = ImageClassificationModel(
@@ -84,7 +83,7 @@ device_model2 = ImageClassificationModel(
     num_classes=10,
 )
 device_model2.load_state_dict(
-    torch.load("./checkpoints/pretrained/device_squeezenet_cifar10_0.3_finetuned.pth")
+    torch.load("./checkpoints/device_squeezenet_cifar10_0.2_finetuned.pth")
 )
 
 # Create the ensemble
@@ -115,7 +114,7 @@ distill(
     lr=0.001,
     temperature=20,
     patience=10,
-    checkpoint_save_path="./checkpoints/pretrained/cloud_resnet18_cifar10_0.1_distilled.pth",
+    checkpoint_save_path="./checkpoints/cloud_resnet18_cifar10_0.4_distilled.pth",
 )
 
 cloud_accuracy_distilled = test_accuracy(cloud_model, test_data)
