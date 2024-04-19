@@ -5,7 +5,9 @@
 - [x] distill 3 small models with custom ResNet-18 on 10% CIFAR-10
 - [x] fine-tune 3 small models on local sub-datasets (90% CIFAR-10 in total)
 - [x] distill small models' ensemble to ResNet-18
-- [ ] distill ResNet-18 to small models and check ensemble again
+- [x] distill ResNet-18 to small models and check ensemble again
+
+- [x] compare with FedAvg baseline
 
 ## Q & A
 
@@ -22,3 +24,5 @@ Food-101数据量很大，训练一次需要很长时间，换用更小更容易
 因为如果云端和设备端使用两种分布差异很大的数据集，那么即使使用classifier微调，也还是会让设备端小模型在尝试蒸馏回云端大模型时的效果极差（0.1的准确率，等于瞎猜）。
 
 ### Q4. baseline怎么确定？
+
+1. 使用最小规模的模型做FedAvg

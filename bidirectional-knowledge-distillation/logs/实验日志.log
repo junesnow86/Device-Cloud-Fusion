@@ -74,3 +74,93 @@ Device model 2 accuracy: 0.5332
 Device ensemble accuracy: 0.6445
 Cloud model accuracy after distillation: 0.6976
 在使用本地数据微调后的小模型ensemble性能超越了云端模型，而在蒸馏后，云端模型的性能超越了ensemble。
+
+second distillation results
+Cloud model accuracy before distillation: 0.6305                                                                                                                                                                                                
+Device model 0 accuracy before second-distillation: 0.5854
+Device model 1 accuracy before second-distillation: 0.5957
+Device model 2 accuracy before second-distillation: 0.5332
+Device ensemble accuracy before second-distillation: 0.6445
+Cloud model accuracy: 0.6896
+Device model 0 accuracy: 0.5918
+Device model 1 accuracy: 0.5961
+Device model 2 accuracy: 0.5481
+Device ensemble accuracy: 0.6386
+在经过第二次蒸馏后，每个小模型的性能都有微小的提升，但是ensemble的性能下降了。
+
+squeezenet FedAvg: 使用最小的模型进行FedAvg聚合的性能表现要比大小异构模型的ensemble要好。
+Round 0: 0.4227
+Round 1: 0.5622
+Round 2: 0.598
+Round 3: 0.6225
+Round 4: 0.6307
+Round 5: 0.6311
+Round 6: 0.6429
+Round 7: 0.6447
+Round 8: 0.643
+Round 9: 0.6483
+Round 10: 0.6503
+Round 11: 0.6537
+Round 12: 0.6527
+Round 13: 0.657
+Round 14: 0.6563
+Round 15: 0.6535
+Round 16: 0.6627
+Round 17: 0.6606
+Round 18: 0.6572
+Round 19: 0.6569
+Round 20: 0.6599
+
+2024.4.18
+将云端数据量增加到25%
+Cloud model accuracy: 0.7741                                                                                                                                                                                             
+Device model 0 accuracy: 0.6726
+Device model 1 accuracy: 0.7135
+Device model 2 accuracy: 0.6870
+Device ensemble accuracy: 0.7523
+Cloud model accuracy after distillation: 0.8039
+
+二次蒸馏的设备模型性能提升十分有限：
+mobilenet
+Cloud model accuracy: 0.8004                                                                                                                                                                                             
+Device model accuracy before distillation: 0.6726
+Device model accuracy after distillation: 0.6796
+
+shufflenet
+Cloud model accuracy: 0.8004                                                                                                                                                                                             
+Device model accuracy before distillation: 0.7135
+Device model accuracy after distillation: 0.7197
+
+squeezenet
+Cloud model accuracy: 0.8004                                                                                                                                                                                             
+Device model accuracy before distillation: 0.6870
+Device model accuracy after distillation: 0.6899
+
+Model 0 fine-tune accuracy: 0.6786                                                                                                                                                                                       
+Model 1 fine-tune accuracy: 0.7202
+Model 2 fine-tune accuracy: 0.6918
+Ensemble fine-tune accuracy: 0.7474 （比second-distillation前低）
+Ensemble vote fine-tune accuracy: 0.7318
+
+squeezenet FedAvg:
+Round 0: 0.6543
+Round 1: 0.6869
+Round 2: 0.6973
+Round 3: 0.7045
+Round 4: 0.7094
+Round 5: 0.7102
+Round 6: 0.7139
+Round 7: 0.7169
+Round 8: 0.7187
+Round 9: 0.718
+Round 10: 0.7266
+Round 11: 0.7199
+Round 12: 0.7248
+Round 13: 0.7275
+Round 14: 0.7264
+Round 15: 0.7331
+Round 16: 0.7353
+Round 17: 0.7346
+Round 18: 0.7345
+Round 19: 0.739
+Round 20: 0.7421
