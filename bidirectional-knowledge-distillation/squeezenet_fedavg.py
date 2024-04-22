@@ -7,9 +7,8 @@ from torchvision.datasets import CIFAR10
 from torchvision.models import squeezenet1_0
 
 from modules.data_utils import SubsetBasedDataset
-from modules.evaluation import test_accuracy
+from modules.functional import test_accuracy, train
 from modules.models import ImageClassificationModel
-from modules.training import train
 
 
 def fed_avg(model_weights, sample_numbers):
