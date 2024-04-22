@@ -82,7 +82,9 @@ def train(
             best_loss = val_loss
             wait = 0
             if checkpoint_save_path:
+                model.to("cpu")
                 torch.save(model.state_dict(), checkpoint_save_path)
+                model.to(device)
         else:
             wait += 1
             if wait == patience:
@@ -193,7 +195,9 @@ def distill(
             best_loss = val_loss
             wait = 0
             if checkpoint_save_path:
+                student.to("cpu")
                 torch.save(student.state_dict(), checkpoint_save_path)
+                student.to(device)
         else:
             wait += 1
             if wait == patience:
@@ -203,7 +207,9 @@ def distill(
 
 def fed_avg(model_weights, sample_numbers):
     avg_weights = {}
-    for key in model_weights[0].keys():
+    keys = model_weights[0].keys()
+
+    for key in keys:
         layer_weights = [
             model_weight[key].clone().detach() * num
             for model_weight, num in zip(model_weights, sample_numbers)

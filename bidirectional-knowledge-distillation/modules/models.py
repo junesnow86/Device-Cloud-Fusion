@@ -32,3 +32,6 @@ class Ensemble(torch.nn.Module):
             outputs = outputs.detach().cpu().numpy()
             voted_outputs = stats.mode(outputs, axis=0)[0]
             return torch.from_numpy(voted_outputs).to(x.device)
+
+    def to(self, device):
+        self.models = [model.to(device) for model in self.models]

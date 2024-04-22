@@ -35,11 +35,15 @@ for i, subset in enumerate(train_data_splits):
     train_data_splits[i] = train_subset
     val_data_splits.append(val_subset)
 
+print([len(subset) for subset in train_data_splits])
+print([len(subset) for subset in val_data_splits])
 
 # Train models on each subset
 model_global = squeezenet1_1(weights=None, num_classes=10)
 models = []
 model_weights = []
+accuracy_list = []
+
 for i in range(num_splits):
     model = squeezenet1_1(weights=None, num_classes=10)
     model.load_state_dict(model_global.state_dict())
@@ -47,21 +51,27 @@ for i in range(num_splits):
         model,
         train_data_splits[i],
         val_data_splits[i],
-        lr=0.01,
         checkpoint_save_path=f"checkpoints/model_{i}.pth",
     )
     models.append(model)
     model_weights.append(model.state_dict())
+    accuracy_list.append(test_accuracy(model, test_data))
+
+# for i in range(num_splits):
+#     model = squeezenet1_1(weights=None, num_classes=10)
+#     state_dict = torch.load("checkpoints/model_{}.pth".format(i))
+#     model.load_state_dict(state_dict)
+#     models.append(model)
+#     model_weights.append(state_dict)
 
 
 # Compare model ensemble and FedAvg
 ensemble = Ensemble(models)
 accuracy_ensemble = test_accuracy(ensemble, test_data)
 
-avg_weights = fed_avg(model_weights, split_sizes)
-model_avg = squeezenet1_1(weights=None, num_classes=10)
-model_avg.load_state_dict(avg_weights)
-accuracy_avg = test_accuracy(model_avg, test_data)
+model_global.load_state_dict(fed_avg(model_weights, split_sizes))
+accuracy_avg = test_accuracy(model_global, test_data)
 
+print(f"Accuracy list: {accuracy_list}")
 print(f"Ensemble accuracy: {accuracy_ensemble}")
 print(f"FedAvg accuracy: {accuracy_avg}")
