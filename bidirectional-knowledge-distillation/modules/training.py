@@ -14,7 +14,7 @@ def train(
     lr=0.001,
     optimizer=None,
     device="cuda",
-    patience=5,
+    patience=10,
     checkpoint_save_path=None,
 ):
     # warmup_epochs = int(epochs * 0.1)
