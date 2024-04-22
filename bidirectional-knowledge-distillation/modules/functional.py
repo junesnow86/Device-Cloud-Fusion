@@ -11,7 +11,7 @@ def train(
     val_data,
     epochs=100,
     batch_size=128,
-    lr=0.01,
+    lr=0.001,
     optimizer=None,
     device="cuda",
     patience=10,
@@ -33,9 +33,7 @@ def train(
     criterion = nn.CrossEntropyLoss()
 
     if optimizer is None:
-        optimizer = optim.SGD(
-            model.parameters(), lr=lr, momentum=0.9, nesterov=True, weight_decay=1e-4
-        )
+        optimizer = optim.SGD(model.parameters(), lr=lr)
 
     # warmup_scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lamba)
     # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
@@ -101,7 +99,7 @@ def distill(
     alpha=0.5,
     epochs=100,
     batch_size=128,
-    lr=0.01,
+    lr=0.001,
     optimizer=None,
     device="cuda",
     patience=5,
@@ -129,9 +127,7 @@ def distill(
     hard_loss_fn = nn.CrossEntropyLoss()
 
     if optimizer is None:
-        optimizer = optim.SGD(
-            student.parameters(), lr=lr, momentum=0.9, nesterov=True, weight_decay=1e-4
-        )
+        optimizer = optim.SGD(student.parameters(), lr=lr)
 
     best_loss = float("inf")
     wait = 0
