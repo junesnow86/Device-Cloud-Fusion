@@ -1,13 +1,5 @@
 ## Implementation Steps
-- [x] add common classifier layer, one classifer for each dataset(tryiny to prove that small models learn useful knowledge from local datasets, but it doesn't help)
-- [x] compare performance of fine-tuned small models' ensemble and separate small models
-- [x] train a custom ResNet-18 on 10% CIFAR-10
-- [x] distill 3 small models with custom ResNet-18 on 10% CIFAR-10
-- [x] fine-tune 3 small models on local sub-datasets (90% CIFAR-10 in total)
-- [x] distill small models' ensemble to ResNet-18
-- [x] distill ResNet-18 to small models and check ensemble again
 
-- [x] compare with FedAvg baseline
 
 ## Q & A
 

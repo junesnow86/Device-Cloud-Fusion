@@ -164,3 +164,12 @@ Round 17: 0.7346
 Round 18: 0.7345
 Round 19: 0.739
 Round 20: 0.7421
+
+2024.4.19
+当将云端数据比例增加到40%时，端侧就不会带来增益了。
+Cloud model accuracy: 0.8002                                                                                                                                                                                                                        
+Device model 0 accuracy: 0.6962
+Device model 1 accuracy: 0.6894
+Device model 2 accuracy: 0.6952
+Device ensemble accuracy: 0.7397
+Cloud model accuracy after distillation: 0.8043

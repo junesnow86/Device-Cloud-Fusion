@@ -1,0 +1,12 @@
+2024.4.19
+mobilenet_v3_large trained on CIFAR-100, acc = 0.35
+squeezenet_1_1 trained on CIFAR-100, acc = 0.32
+
+mobilenet_v3_large trained on CIFAR-10, acc = 0.6759
+squeezenet_1_1 trained on CIFAR-10, acc = 0.6941
+
+pretrained mobilenet_v3_large fine-tuned on CIFAR-10, acc = 0.5599
+pretrained squeezenet_1_1 fine-tuned on CIFAR-10, acc = 0.7036
+
+mobilenet_v3_large 的模型参数量比 squeezenet_1_1 大，但是在相同条件下在 CIFAR-10 上的准确率不如 squeezenet_1_1。
+这个实验、这个数据集不能体现端侧模型参数量所带来的差异。
