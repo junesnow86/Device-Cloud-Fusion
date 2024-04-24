@@ -33,7 +33,8 @@ def train(
     criterion = nn.CrossEntropyLoss()
 
     if optimizer is None:
-        optimizer = optim.SGD(model.parameters(), lr=lr)
+        # optimizer = optim.SGD(model.parameters(), lr=lr)
+        optimizer = optim.Adam(model.parameters(), lr=lr)
 
     # warmup_scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lamba)
     # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
@@ -127,7 +128,8 @@ def distill(
     hard_loss_fn = nn.CrossEntropyLoss()
 
     if optimizer is None:
-        optimizer = optim.SGD(student.parameters(), lr=lr)
+        # optimizer = optim.SGD(student.parameters(), lr=lr)
+        optimizer = optim.Adam(student.parameters(), lr=lr)
 
     best_loss = float("inf")
     wait = 0
