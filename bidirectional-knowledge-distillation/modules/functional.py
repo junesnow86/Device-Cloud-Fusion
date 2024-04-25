@@ -123,7 +123,7 @@ def distill(
     student.train()
 
     transfer_dataloader = DataLoader(transfer_data, batch_size=batch_size, shuffle=True)
-    val_dataloader = DataLoader(val_data, batch_size=batch_size, shuffle=True)
+    val_dataloader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
 
     hard_loss_fn = nn.CrossEntropyLoss()
 
