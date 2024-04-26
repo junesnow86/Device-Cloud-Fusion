@@ -1,114 +1,86 @@
+import argparse
+import os
 import pickle
 
 import torch
-from torch.utils.data import Subset, random_split
-from torchvision.datasets import CIFAR10
+import torchvision.transforms.v2 as T
+from torch.utils.data import random_split
+from torchvision.datasets import CIFAR10, CIFAR100
 
-dataset = CIFAR10(root="./data", train=True, download=False)
-targets = torch.tensor(dataset.targets)
-classes, class_counts = targets.unique(return_counts=True)
-cloud_ratio = 0.4
-cloud_sample_per_class = (class_counts * cloud_ratio).int()
-cloud_sample_indices = []
-
-for i, c in enumerate(classes):
-    class_indices = (targets == c).nonzero().view(-1)
-    class_sample_indices = class_indices[
-        torch.randperm(len(class_indices))[: cloud_sample_per_class[i]]
-    ]
-    cloud_sample_indices.extend(class_sample_indices.tolist())
-
-cloud_subset = Subset(dataset, cloud_sample_indices)
-
-remaining_indices = list(set(range(len(dataset))) - set(cloud_sample_indices))
-remaining_subset = Subset(dataset, remaining_indices)
-
-with open("data/cloud_subset_cifar10_0.4.pkl", "wb") as f:
-    pickle.dump(cloud_subset, f)
-
-with open("data/remaining_subset_cifar10_0.6.pkl", "wb") as f:
-    pickle.dump(remaining_subset, f)
-
-# # Calculate the number of samples in each class for the cloud_subset
-# cloud_targets = torch.tensor([dataset.targets[i] for i in cloud_sample_indices])
-# cloud_classes, cloud_class_counts = cloud_targets.unique(return_counts=True)
-# print(
-#     "Cloud subset class counts:",
-#     dict(zip(cloud_classes.tolist(), cloud_class_counts.tolist())),
-# )
-
-# # Calculate the number of samples in each class for the remaining_subset
-# remaining_targets = torch.tensor([dataset.targets[i] for i in remaining_indices])
-# remaining_classes, remaining_class_counts = remaining_targets.unique(return_counts=True)
-# print(
-#     "Remaining subset class counts:",
-#     dict(zip(remaining_classes.tolist(), remaining_class_counts.tolist())),
-# )
+from modules.data_utils import TinyImageNet200
 
 
-size0 = len(remaining_subset) // 3
-size1 = size0
-size2 = len(remaining_subset) - size0 - size1
+def parse_args():
+    parser = argparse.ArgumentParser(description="Partition data")
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="cifar10",
+        choices=["cifar10", "cifar100", "tiny-imagenet-200"],
+    )
+    parser.add_argument("--cloud-ratio", type=float, default=0.1)
+    parser.add_argument("--num-splits", type=int, default=10)
+    parser.add_argument("--data-dir", type=str, default="data")
+    return parser.parse_args()
 
-subset0, subset1, subset2 = random_split(remaining_subset, [size0, size1, size2])
 
-print(len(remaining_subset))
-print(len(subset0))
-print(len(subset1))
-print(len(subset2))
+def main():
+    args = parse_args()
 
-with open("data/remaining_subset0_cifar10_0.2.pkl", "wb") as f:
-    pickle.dump(subset0, f)
+    # Print arguments
+    print(f"Running with arguments: {args}")
 
-with open("data/remaining_subset1_cifar10_0.2.pkl", "wb") as f:
-    pickle.dump(subset1, f)
+    if args.dataset.startswith("cifar"):
+        transform = T.Compose(
+            [
+                T.ToImage(),
+                T.ToDtype(torch.float32),
+                T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            ]
+        )
+    else:
+        transform = T.Compose(
+            [
+                T.ToImage(),
+                T.ToDtype(torch.float32),
+                T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            ]
+        )
 
-with open("data/remaining_subset2_cifar10_0.2.pkl", "wb") as f:
-    pickle.dump(subset2, f)
+    if args.dataset == "cifar10":
+        train_data = CIFAR10(root=args.data_dir, train=True, transform=transform)
+    elif args.dataset == "cifar100":
+        train_data = CIFAR100(root=args.data_dir, train=True, transform=transform)
+    else:
+        train_data = TinyImageNet200(
+            root=os.path.join(args.data_dir),
+            split="train",
+            transform=transform,
+        )
 
-# Calculate the number of samples in each class for the remaining_subset
-remaining_targets = torch.tensor(
-    [remaining_subset.dataset.targets[i] for i in remaining_subset.indices]
-)
-remaining_classes, remaining_class_counts = remaining_targets.unique(return_counts=True)
-print(
-    "Remaining subset class counts:",
-    dict(zip(remaining_classes.tolist(), remaining_class_counts.tolist())),
-)
+    num_total = len(train_data)
+    num_cloud = int(args.cloud_ratio * num_total)
+    num_device = num_total - num_cloud
 
-remaining_targets_0 = torch.tensor(
-    [remaining_subset.dataset.targets[i] for i in subset0.indices]
-)
-remaining_classes_0, remaining_class_counts_0 = remaining_targets_0.unique(
-    return_counts=True
-)
-print(
-    "Remaining subset0 class counts:",
-    dict(zip(remaining_classes_0.tolist(), remaining_class_counts_0.tolist())),
-)
+    train_data_cloud, train_data_device = random_split(
+        train_data, [num_cloud, num_device]
+    )
 
-remaining_targets_1 = torch.tensor(
-    [remaining_subset.dataset.targets[i] for i in subset1.indices]
-)
-remaining_classes_1, remaining_class_counts_1 = remaining_targets_1.unique(
-    return_counts=True
-)
-print(
-    "Remaining subset1 class counts:",
-    dict(zip(remaining_classes_1.tolist(), remaining_class_counts_1.tolist())),
-)
+    # Split the device data into `num_splits` splits
+    split_sizes = [num_device // args.num_splits] * args.num_splits
+    split_sizes[-1] += num_device % args.num_splits
+    train_data_device_splits = random_split(train_data_device, split_sizes)
 
-remaining_targets_2 = torch.tensor(
-    [remaining_subset.dataset.targets[i] for i in subset2.indices]
-)
-remaining_classes_2, remaining_class_counts_2 = remaining_targets_2.unique(
-    return_counts=True
-)
-print(
-    "Remaining subset2 class counts:",
-    dict(zip(remaining_classes_2.tolist(), remaining_class_counts_2.tolist())),
-)
+    # Save the partitioned data
+    with open(os.path.join(args.data_dir, f"pkl/{args.dataset}_cloud.pkl"), "wb") as f:
+        pickle.dump(train_data_cloud, f)
 
-print(set(subset0.indices) & set(subset1.indices))
-print(set(subset0.indices) & set(subset2.indices))
-print(set(subset1.indices) & set(subset2.indices))
+    for i, subset in enumerate(train_data_device_splits):
+        with open(
+            os.path.join(args.data_dir, f"pkl/{args.dataset}_device_{i}.pkl"), "wb"
+        ) as f:
+            pickle.dump(subset, f)
+
+
+if __name__ == "__main__":
+    main()

@@ -242,109 +242,108 @@ def dirichlet_split(dataset, num_participants, num_classes=None):
     return [Subset(dataset, indices) for indices in participant_indices]
 
 
-# directory of tiny-imagenet-200 dataset
-data_path = "/home/ljt/Device-Cloud-Fusion/bidirectional-knowledge-distillation/data/tiny-imagenet-200/"
-
-
 class RawData:
+    def __init__(self, root, dataset="tiny-imagenet-200/") -> None:
+        self.data_path = os.path.join(root, dataset)
 
-    __labels_t_path = "%s%s" % (data_path, "wnids.txt")
-    __train_data_path = "%s%s" % (data_path, "train/")
-    __val_data_path = "%s%s" % (data_path, "val/")
+        self.__labels_t_path = "%s%s" % (self.data_path, "wnids.txt")
+        self.__train_data_path = "%s%s" % (self.data_path, "train/")
+        self.__val_data_path = "%s%s" % (self.data_path, "val/")
 
-    __labels_t = None
-    __image_names = None
+        self.__labels_t = None
+        self.__image_names = None
 
-    __val_labels_t = None
-    __val_labels = None
-    __val_names = None
+        self.__val_labels_t = None
+        self.__val_labels = None
+        self.__val_names = None
 
-    @staticmethod
-    def labels_t():
-        if RawData.__labels_t is None:
+    @property
+    def labels_t(self):
+        if self.__labels_t is None:
             labels_t = []
-            with open(RawData.__labels_t_path) as wnid:
+            with open(self.__labels_t_path) as wnid:
                 for line in wnid:
                     labels_t.append(line.strip("\n"))
 
-            RawData.__labels_t = labels_t
+            self.__labels_t = labels_t
 
-        return RawData.__labels_t
+        return self.__labels_t
 
-    @staticmethod
-    def image_names():
-        if RawData.__image_names is None:
+    @property
+    def image_names(self):
+        if self.__image_names is None:
             image_names = []
-            labels_t = RawData.labels_t()
+            labels_t = self.labels_t
             for label in labels_t:
-                txt_path = (
-                    RawData.__train_data_path + label + "/" + label + "_boxes.txt"
-                )
+                txt_path = self.__train_data_path + label + "/" + label + "_boxes.txt"
                 image_name = []
                 with open(txt_path) as txt:
                     for line in txt:
                         image_name.append(line.strip("\n").split("\t")[0])
                 image_names.append(image_name)
 
-            RawData.__image_names = image_names
+            self.__image_names = image_names
 
-        return RawData.__image_names
+        return self.__image_names
 
-    @staticmethod
-    def val_labels_t():
-        if RawData.__val_labels_t is None:
+    @property
+    def val_labels_t(self):
+        if self.__val_labels_t is None:
             val_labels_t = []
-            with open(RawData.__val_data_path + "val_annotations.txt") as txt:
+            with open(self.__val_data_path + "val_annotations.txt") as txt:
                 for line in txt:
                     val_labels_t.append(line.strip("\n").split("\t")[1])
 
-            RawData.__val_labels_t = val_labels_t
+            self.__val_labels_t = val_labels_t
 
-        return RawData.__val_labels_t
+        return self.__val_labels_t
 
-    @staticmethod
-    def val_names():
-        if RawData.__val_names is None:
+    @property
+    def val_names(self):
+        if self.__val_names is None:
             val_names = []
-            with open(RawData.__val_data_path + "val_annotations.txt") as txt:
+            with open(self.__val_data_path + "val_annotations.txt") as txt:
                 for line in txt:
                     val_names.append(line.strip("\n").split("\t")[0])
 
-            RawData.__val_names = val_names
+            self.__val_names = val_names
 
-        return RawData.__val_names
+        return self.__val_names
 
-    @staticmethod
-    def val_labels():
-        if RawData.__val_labels is None:
+    @property
+    def val_labels(self):
+        if self.__val_labels is None:
             val_labels = []
-            val_labels_t = RawData.val_labels_t()
-            labels_t = RawData.labels_t()
+            val_labels_t = self.val_labels_t
+            labels_t = self.labels_t
             for i in range(len(val_labels_t)):
                 for i_t in range(len(labels_t)):
                     if val_labels_t[i] == labels_t[i_t]:
                         val_labels.append(i_t)
             val_labels = np.array(val_labels)
 
-            RawData.__val_labels = val_labels
+            self.__val_labels = val_labels
 
-        return RawData.__val_labels
+        return self.__val_labels
 
 
 class TinyImageNet200(Dataset):
 
-    def __init__(self, split, transform):
+    def __init__(self, root, split, transform):
         """
         split: `train` or `val`
         """
+        data_path = os.path.join(root, "tiny-imagenet-200/")
         self.__train_data_path = "%s%s" % (data_path, "train/")
         self.__val_data_path = "%s%s" % (data_path, "val/")
 
         self.split = split
 
-        self.labels_t = RawData.labels_t()
-        self.image_names = RawData.image_names()
-        self.val_names = RawData.val_names()
+        self.raw_data = RawData(root)
+
+        self.labels_t = self.raw_data.labels_t
+        self.image_names = self.raw_data.image_names
+        self.val_names = self.raw_data.val_names
 
         self.transform = transform
 
@@ -354,7 +353,7 @@ class TinyImageNet200(Dataset):
 
         labels_t = self.labels_t
         image_names = self.image_names
-        val_labels = RawData.val_labels()
+        val_labels = self.raw_data.val_labels
         val_names = self.val_names
 
         if self.split == "train":
@@ -386,3 +385,12 @@ class TinyImageNet200(Dataset):
             len_ = len(self.val_names)
 
         return len_
+
+
+if __name__ == "__main__":
+    dataset = TinyImageNet200(
+        root="/home/ljt/Device-Cloud-Fusion/bidirectional-knowledge-distillation/data",
+        split="train",
+        transform=transforms.Compose([transforms.ToTensor()]),
+    )
+    print(len(dataset))

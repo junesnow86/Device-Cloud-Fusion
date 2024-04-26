@@ -35,9 +35,6 @@ for i, subset in enumerate(train_data_splits):
     train_data_splits[i] = train_subset
     val_data_splits.append(val_subset)
 
-print([len(subset) for subset in train_data_splits])
-print([len(subset) for subset in val_data_splits])
-
 # Train models on each subset
 model_global = squeezenet1_1(weights=None, num_classes=10)
 models = []
@@ -51,7 +48,7 @@ for i in range(num_splits):
         model,
         train_data_splits[i],
         val_data_splits[i],
-        checkpoint_save_path=f"checkpoints/model_{i}.pth",
+        # checkpoint_save_path=f"checkpoints/model_{i}.pth",
     )
     models.append(model)
     model_weights.append(model.state_dict())
