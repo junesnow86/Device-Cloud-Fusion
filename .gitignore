@@ -2,4 +2,4 @@
 data/flickr30k/images/*.jpg
 **/data/*
 **/checkpoints/*
-
+.vscode
