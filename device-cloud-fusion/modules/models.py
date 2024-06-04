@@ -77,3 +77,18 @@ class LowLevelEncoder(nn.Module):
         x = self.bn(x)
         x = self.activation(x)
         return x
+
+
+class FusionModel(nn.Module):
+    def __init__(self, cloud_part, control_part, shared_encoder):
+        super().__init__()
+        self.cloud_part = cloud_part
+        self.control_part = control_part
+        self.shared_encoder = shared_encoder
+
+    def forward(self, x):
+        x = self.shared_encoder(x)
+        cloud_logits = self.cloud_part(x)
+        control_logits = self.control_part(x)
+        outputs = cloud_logits + control_logits
+        return outputs
